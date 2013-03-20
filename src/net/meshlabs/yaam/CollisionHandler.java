@@ -31,16 +31,21 @@ public class CollisionHandler implements CollisionListener {
 			source.shadowNormal = pm.getTransformedNormal(polys[0]);
 			source.shadowContact = ce.getFirstContact();
 		} else {	// It's for a collision
-			source.lastCollisionNormal = pm.getTransformedNormal(polys[0]); 
-		}
-		
-		
-		// just to see if this ever happens
-		if (polys.length > 1) {
+			source.lastCollisionNormal.set(0, 0, 0);
 			for (int i=0; i<polys.length; i++) {
-				Log.i("CollisionHandler", "Poly"+i+" normal:"+pm.getTransformedNormal(i));
+				source.lastCollisionNormal.add(pm.getTransformedNormal(polys[i]));
 			}
+			source.lastCollisionNormal.scalarMul(1f / polys.length);
+			//source.lastCollisionNormal = pm.getTransformedNormal(polys[0]); 
 		}
+		
+		
+//		// just to see if this ever happens
+//		if (polys.length > 1) {
+//			for (int i=0; i<polys.length; i++) {
+//				Log.i("CollisionHandler", "Poly"+i+" normal:"+pm.getTransformedNormal(polys[i]));
+//			}
+//		}
 	}
 
 	@Override

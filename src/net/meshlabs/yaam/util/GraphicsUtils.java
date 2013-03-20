@@ -3,6 +3,7 @@ package net.meshlabs.yaam.util;
 import android.util.Log;
 
 import com.threed.jpct.Loader;
+import com.threed.jpct.Matrix;
 import com.threed.jpct.Object3D;
 import com.threed.jpct.PolygonManager;
 import com.threed.jpct.SimpleVector;
@@ -55,6 +56,14 @@ public class GraphicsUtils {
 				Log.i("ModelObj", "Poly"+i+" UVs:"+uvs[0]+", "+uvs[1]+", "+uvs[2]);
 			}
 		}
+	}
+	
+	public static void rotateObject(Object3D object, SimpleVector origRotation, SimpleVector newRotation) {
+		float angle = newRotation.calcAngleFast(origRotation);
+		SimpleVector rotationAxis = newRotation.calcCross(origRotation);
+
+		object.rotateAxis(rotationAxis, angle);
+
 	}
 
 }

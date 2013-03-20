@@ -1,23 +1,20 @@
 package net.meshlabs.yaam;
 
 import net.meshlabs.yaam.util.GraphicsUtils;
-import android.util.Log;
 
 import com.threed.jpct.Matrix;
-import com.threed.jpct.Mesh;
 import com.threed.jpct.Object3D;
 import com.threed.jpct.Primitives;
 import com.threed.jpct.RGBColor;
 import com.threed.jpct.SimpleVector;
 import com.threed.jpct.Texture;
-import com.threed.jpct.TextureManager;
 
-public class ForceArrow {
-	final private static String FORCE_TEXTURE = "forceArrowTexture";
+public class VelocityArrow {
+	final private static String VEL_TEXTURE = "velocityArrowTexture";
 	final private SimpleVector originalDir = new SimpleVector(0, 1, 0); 
 	//final private SimpleVector offsetFromBall;
 	
-	final private static float SCALE = 0.12f;
+	final private static float SCALE = 0.25f;
 	final private GameWorld world;
 	private Object3D shaft;  
 
@@ -26,13 +23,13 @@ public class ForceArrow {
 	/*
 	 * Public factory method. 
 	 */
-	public static ForceArrow create(GameWorld world, float rotationRadius) {
-		ForceArrow a = new ForceArrow(world, rotationRadius);
+	public static VelocityArrow create(GameWorld world, float rotationRadius) {
+		VelocityArrow a = new VelocityArrow(world, rotationRadius);
 		
 		return a;
 	}
 	
-	public ForceArrow(GameWorld world, float marbleRadius) {
+	public VelocityArrow(GameWorld world, float marbleRadius) {
 		this.world = world;
 
 		shaft = Primitives.getCylinder(4, .05f, 5);
@@ -50,42 +47,42 @@ public class ForceArrow {
 		point.setTranslationMatrix(new Matrix());
 		
 		
-		world.reloadTexture(FORCE_TEXTURE, new Texture(32, 32, new RGBColor(0, 255, 0)));
-		Log.i("ForceArrow", "Point object");
-		GraphicsUtils.printPolyInfo(point, 5, 0, false);
-		Log.i("ForceArrow", "Shaft object");
-		GraphicsUtils.printPolyInfo(shaft, 5, 0, false);
+		world.reloadTexture(VEL_TEXTURE, new Texture(32, 32, new RGBColor(180, 80, 50)));
 		
 		shaft = Object3D.mergeObjects(shaft, point);
-		shaft.setTexture(FORCE_TEXTURE);
+		shaft.setTexture(VEL_TEXTURE);
 
 		shaft.build();
 		world.addObject(shaft);
-		
-		shaft.setOrigin(new SimpleVector(0, -marbleRadius*2.25, 0));
+		shaft.setRotationPivot(new SimpleVector(0, 0, 0));
+		shaft.setOrigin(new SimpleVector(0, 0, 0));
 		
 	}
 	
-	public void updateArrow(final SimpleVector translation, final SimpleVector force) {
-		if (force.length() < 0.1) {
-			shaft.setVisibility(false);
+	public void updateArrow(final SimpleVector translation, final SimpleVector velocity, final float alpha) {
+		if (velocity.length() < 0.1 || alpha > 0.9) {
+			setVisibility(false);
 		} else {
-			shaft.setVisibility(true);
-
-			float angle = force.calcAngleFast(originalDir);
-			SimpleVector rotationAxis = force.calcCross(originalDir);
+			setVisibility(true);
+			//Log.i("VelArrow", "Transparency="+(1-alpha)*100);
+			//shaft.setTransparency((int) (1-alpha)*100);
 			
 			shaft.clearRotation();
+			
 			Matrix rotm = shaft.getRotationMatrix();
 
 			float oldValue = rotm.get(1, 1);
-			rotm.set(1, 1, force.length()*SCALE - 1 + oldValue);
-			shaft.rotateAxis(rotationAxis, angle);
-
+			rotm.set(1, 1, velocity.length()*SCALE - 1 + oldValue);	
+			GraphicsUtils.rotateObject(shaft, originalDir, velocity);
+			
 			shaft.clearTranslation();
 			shaft.translate(translation);
 		}
 
+	}
+	
+	public void setVisibility(boolean isVisible) {
+		shaft.setVisibility(isVisible);
 	}
 	
 	public void addParent(Object3D object) {

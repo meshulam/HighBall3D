@@ -74,6 +74,7 @@ public class TouchHandler extends GLSurfaceView {
 	private float lastDistance2 =  0;
 	private float lastAngle2 = 0;
 	
+	private final static float CAMERA_MOVE_MULTIPLIER = 200;
 	private void handle2Pointer(MotionEvent e) {
 		int p0 = e.findPointerIndex(p0id);
 		int p1 = e.findPointerIndex(p1id);
@@ -83,7 +84,7 @@ public class TouchHandler extends GLSurfaceView {
 							(e.getY(0)-e.getY(1))*(e.getY(0)-e.getY(1)) ); 
 		
 		queueEvent(new CameraMove(world, angle-lastAngle2, 
-					(lastDistance2-distance)*2000/(getHeight()*getWidth())));
+					(lastDistance2-distance)*CAMERA_MOVE_MULTIPLIER/(getHeight()*getWidth())));
 		
 		lastDistance2 = distance;
 		lastAngle2 = angle;

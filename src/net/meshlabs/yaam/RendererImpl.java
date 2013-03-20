@@ -68,12 +68,17 @@ public class RendererImpl implements GLSurfaceView.Renderer {
 		}
 		//gameWorld.reloadTextures();
 		fb = new FrameBuffer(gl, width, height);
+		gameWorld.resyncRenderer();
 	}
 
 	@Override
 	public void onSurfaceCreated(GL10 gl, EGLConfig config) {
 		Log.i("Renderer", "onSurfaceCreated");
 		gameWorld.createWorld();
+	}
+	
+	protected FrameBuffer getFrameBuffer() {
+		return fb;
 	}
 
 }

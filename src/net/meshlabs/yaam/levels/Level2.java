@@ -11,7 +11,7 @@ import com.threed.jpct.Object3D;
 
 public class Level2 {
 	public final static String MAP_TEXTURE = "floor.png";
-	private final static String MODEL_FILE = "halfpipe.3ds";
+	private final static String MODEL_FILE = "halfpipe2.3ds";
 	private final GameWorld world;
 	private Object3D statics;
 	
@@ -23,7 +23,7 @@ public class Level2 {
 	}
 	
 	public void initialize() {
-		Object3D obj = world.load3DS(MODEL_FILE, 0.4f);
+		Object3D obj = world.load3DS(MODEL_FILE, 0.5f);
 		
 		objects.add(obj);
 		GraphicsUtils.printPolyInfo(obj, 3, 0, true);

@@ -1,5 +1,6 @@
 package net.meshlabs.yaam;
 
+import net.meshlabs.yaam.util.GraphicsUtils;
 import android.util.Log;
 
 import com.threed.jpct.Object3D;
@@ -9,6 +10,7 @@ import com.threed.jpct.SimpleVector;
 
 public class BlobShadow extends Object3D {
 	public static final String TEXTURE = "shadowTexture";
+	private final SimpleVector originalOrientation = new SimpleVector(0, 0, -1);
 	
 	private final float size;
 	
@@ -29,7 +31,8 @@ public class BlobShadow extends Object3D {
 		this.translate(position.x, position.y-0.1f, position.z);
 		//Log.i("BLobShadow", "At "+position+" normal"+normal);
 		// TODO: un-hardcode this
-		this.setOrientation(SimpleVector.create(0, 1, 0), SimpleVector.create(0, 0, -1));
+		this.clearRotation();
+		GraphicsUtils.rotateObject(this, originalOrientation, normal);
 		this.setVisibility(true);
 	}
 

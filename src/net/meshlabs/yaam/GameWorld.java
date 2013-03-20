@@ -27,7 +27,7 @@ import com.threed.jpct.util.MemoryHelper;
 public class GameWorld {
 	
 	private Activity activity;
-	protected Renderer renderer;
+	protected RendererImpl renderer;
 	private World graphicsWorld;
 	
 	final protected SimpleVector gravity = new SimpleVector(0, 6, 0);
@@ -35,8 +35,9 @@ public class GameWorld {
 	private Camera camera;
 	private Level1Map map;
 
+	private SimpleVector cameraPos = new SimpleVector(); // to reduce allocations
 	private float cameraElevation = 3;  // doesn't change now
-	private float cameraDistance = 3;
+	private float cameraDistance = 0.2f;	// a value in [0,1]
 	private float cameraAngle = -3.141592f / 2;		// Angle around the y axis
 	private ArrayList<Object3D> staticObjects = new ArrayList<Object3D>();
 	
@@ -62,20 +63,31 @@ public class GameWorld {
 		
 		float sumCamDist = cameraDistance + dDistance;
 		
-		if (sumCamDist > 1 &&  sumCamDist < 15) {
+		Log.i("MoveCamera", "Distance "+sumCamDist+"  after trying to add "+dDistance);
+		if (sumCamDist > 0 &&  sumCamDist < 1) {
 			cameraDistance = sumCamDist;
+		} else {
+			
 		}
 
 		//Log.i("gameworld", "moved camera by "+dYaw+" rotation and "+dDistance+"dist ");
 		
 	}
-
+	
+	private final static float CAMERA_MIN_DISTANCE=2f;
+	private final static float CAMERA_MAX_DISTANCE=7f;
+	private final static float CAMERA_CURVATURE=0.3f;
 	
 	private void pointCamera() {
-		SimpleVector cameraPos = SimpleVector.create(cameraDistance*FloatMath.cos(cameraAngle),
-				-cameraElevation, cameraDistance*FloatMath.sin(cameraAngle));
-		cameraPos.add(marble.getTransformedCenter());
+		float adjustedCameraDistance = CAMERA_MIN_DISTANCE+cameraDistance*(CAMERA_MAX_DISTANCE-CAMERA_MIN_DISTANCE);
+		float xPos = adjustedCameraDistance*FloatMath.cos(cameraAngle);
+		float zPos = adjustedCameraDistance*FloatMath.sin(cameraAngle);
 		
+		float yPos = -CAMERA_CURVATURE*adjustedCameraDistance*adjustedCameraDistance;	// Camera traces out a parabola as its distance increases
+		
+		cameraPos.set(xPos, yPos, zPos);
+		Log.i("Camera", "Setting camera pos to "+cameraPos+" relative");
+		cameraPos.add(marble.getTransformedCenter());
 		camera.setPosition(cameraPos);
 		camera.lookAt(marble.getTransformedCenter());
 	}
@@ -86,13 +98,14 @@ public class GameWorld {
 	// The main method that gets called each game loop
 	public void updateGame(float timeStep) {
 		long timeSinceFrozen = SystemClock.uptimeMillis() - last2FingerTimestamp;
+		float timeScaleFactor = 0;
 		
 		if (timeSinceFrozen > TIME_RAMP_END) {	// normal time
-			marble.timeStep(timeStep);
+			timeScaleFactor = 1f;
 		} else if (timeSinceFrozen > TIME_RAMP_START) {  // ramp time
-			float timeScaleFactor = (timeSinceFrozen-TIME_RAMP_START)*(timeSinceFrozen-TIME_RAMP_START) / (TIME_RAMP_END*TIME_RAMP_END);
-			marble.timeStep(timeStep*timeScaleFactor);
+			timeScaleFactor = (timeSinceFrozen-TIME_RAMP_START)*(timeSinceFrozen-TIME_RAMP_START) / (TIME_RAMP_END*TIME_RAMP_END);
 		}
+		marble.timeStep(timeStep, timeScaleFactor);
 		pointCamera();
 		applyForce(0,0);
 	}
@@ -100,6 +113,10 @@ public class GameWorld {
 	public void renderAndDraw(FrameBuffer fb) {
 		graphicsWorld.renderScene(fb);
 		graphicsWorld.draw(fb);
+	}
+	
+	public void resyncRenderer() {
+		reloadTextures();
 	}
 	
 	public void createWorld() {
@@ -138,17 +155,22 @@ public class GameWorld {
 	}
 	
 	public void reloadTextures() {
-		reloadTexture(R.raw.ball, false, Marble.TEXTURE);
-		reloadTexture(R.raw.floor, false, Level2.MAP_TEXTURE);
-		reloadTexture(R.raw.shadow_noalpha, false, BlobShadow.TEXTURE);
+		reloadTextureResource(R.raw.ball, false, Marble.TEXTURE);
+		reloadTextureResource(R.raw.floor, false, Level2.MAP_TEXTURE);
+		reloadTextureResource(R.raw.shadow_noalpha, false, BlobShadow.TEXTURE);
 	}
 	
-	private void reloadTexture(int resourceID, boolean useAlpha, String textureName) {
+	public void reloadTexture(String textureName, Texture texture) {
 		if (TextureManager.getInstance().containsTexture(textureName)) {
-			TextureManager.getInstance().removeTexture(textureName);
+			//TextureManager.getInstance().removeAndUnload(textureName, renderer.getFrameBuffer());
+			return;
 		}
+		TextureManager.getInstance().addTexture(textureName, texture);
+	}
+	
+	private void reloadTextureResource(int resourceID, boolean useAlpha, String textureName) {
 		Texture tex = new Texture(activity.getResources().openRawResource(resourceID), useAlpha);
-		TextureManager.getInstance().addTexture(textureName, tex);
+		reloadTexture(textureName, tex);
 	}
 	
 	public Object3D load3DS(String filename, float scale) {
@@ -183,6 +205,7 @@ public class GameWorld {
 			model[i].setRotationMatrix(new Matrix());
 		}
 		Object3D obj3d = Object3D.mergeAll(model);
+		obj3d.calcNormals();
 		obj3d.build();
 		return obj3d;
 	}

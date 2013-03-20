@@ -12,7 +12,8 @@ import com.threed.jpct.SimpleVector;
 public class Marble extends Object3D {
 	public final static String TEXTURE = "marbleTexture";
 	private final GameWorld world;
-	private final ForceArrow arrow;
+	private final ForceArrow fArrow;
+	private final VelocityArrow vArrow;
 	private final BlobShadow shadow;
 	
 	private float ELASTICITY = 0.6f;
@@ -46,8 +47,8 @@ public class Marble extends Object3D {
 		this.world = w;
 		this.radius = radius;
 		this.ellipsoid = new SimpleVector(radius, radius, radius);
-		this.arrow = ForceArrow.create(world, radius);
-		//arrow.addParent(this);
+		this.fArrow = ForceArrow.create(world, radius);
+		this.vArrow = VelocityArrow.create(world, radius);
 		
 		this.shadow = new BlobShadow(world, radius*2f);
 		
@@ -64,65 +65,52 @@ public class Marble extends Object3D {
 	
 	private static final float FORCE_MULTIPLE = 1;
 	public void setForce(float yaw, float magnitude) {
-		//SimpleVector temp = SimpleVector.create(FORCE_MULTIPLE*magnitude*FloatMath.cos(yaw), 0, 
-		//										FORCE_MULTIPLE*magnitude*FloatMath.sin(yaw));
 		force.x += FORCE_MULTIPLE*magnitude*FloatMath.cos(yaw);
 		force.z += FORCE_MULTIPLE*magnitude*FloatMath.sin(yaw);
-		
-		//Log.i("Marble", "Set force to ["+x+", "+y+", "+z+"]");
 	}
 	
 	double lastAngle= 0;
-	public void timeStep(float stepMS) {
-		float step = stepMS/1000.0f;
+	public void timeStep(float stepMS, float timeScaleFactor) {
+		float step = stepMS*timeScaleFactor/1000.0f;
+		
+		vArrow.updateArrow(getTranslation(), velocity, timeScaleFactor);
+		
 		dPosition.set(velocity);
 		dPosition.scalarMul(step);
 		
-		vecSmoother.add(force);
-		smoothedForce = vecSmoother.getAverage(smoothedForce);
 		
-		Log.i("marble", "force="+force+" smoothed="+smoothedForce);
 		
-		//if (inContact > 0) {
-		//	dVelocity.set(force);
-		//} else {
 		dVelocity.set(force);
 		dVelocity.scalarMul(1/mass);		// accel = f/m
 		dVelocity.add(world.gravity);	// add gravity
-					
-			
-		//}
-		dVelocity.scalarMul(step);
+		dVelocity.scalarMul(step);		// divide by time
 		
-		//SimpleVector adjPosition = this.checkForCollisionEllipsoid(dPosition, ellipsoid, 2); // this will set collisionPoint
-		SimpleVector adjPosition = this.checkForCollisionSpherical(dPosition, radius);
+		SimpleVector adjPosition = this.checkForCollisionEllipsoid(dPosition, ellipsoid, 1); // this will set collisionPoint
+		//SimpleVector adjPosition = this.checkForCollisionSpherical(dPosition, radius);
+		
 
-		translate(adjPosition); // TODO: see if can just keep a reference to the origin
-		
-		arrow.updateArrow(getTranslation(), smoothedForce); // this is the real one
-		//arrow.updateArrow(getTranslation(), velocity);
 		
 		// TODO: bug here; need to do fuzzy compare -- no?
 		if (!adjPosition.equals(dPosition)) { // we have a collision
-			//inContact++;
-
+			// Decompose tangential+normal velocity
 			SimpleVector normalV = SimpleVector.create(lastCollisionNormal); // from the CollisionListener
 			normalV.scalarMul(normalV.calcDot(velocity));
 			SimpleVector tangentV = velocity.calcSub(normalV);
 			lastTangentVelocity  = tangentV;
 			
+			// then invert normal V to bounce off the surface
 			normalV.scalarMul(-1.0f*ELASTICITY);
 			velocity = normalV.calcAdd(tangentV);
 			
-			
-			//Log.i("Marble", "Collision! normal:"+normal+" oldV:"+velocity+" newV:"+normalV.calcAdd(tangentV));
+			//Log.i("Marble", "Coll n="+lastCollisionNormal+" vel="+velocity+" adj="+adjPosition+" dp="+dPosition);
 
+			/*// not sure what this was supposed to do.
 			Matrix rm = this.getRotationMatrix();
 			float trace = rm.get(0, 0) + rm.get(1, 1) + rm.get(2, 2);
 			float calcAng = (float) Math.acos((trace-1)/2);
 			//Log.i("Marble", "adjPos:"+adjPosition+" leng:"+adjPosition.length()+" rotat="+rotation+" calc="+(calcAng-lastAngle));
 			lastAngle = calcAng;
-			
+			*/
 			
 		} else {	// no collision
 			inContact = 0;
@@ -130,14 +118,23 @@ public class Marble extends Object3D {
 			velocity.add(dVelocity);
 		}
 		
+		this.translate(adjPosition);
+		
 		// this kind of looks like rotational inertia but it's not
 		float rotation = lastTangentVelocity.length()*step * 1f / radius;
 		this.rotateAxis(lastCollisionNormal.calcCross(lastTangentVelocity), -rotation);
 		
 		castShadow();
+		updateArrow();
 		
 		force.set(0,0,0);
 
+	}
+	
+	private void updateArrow() {
+		vecSmoother.add(force);
+		smoothedForce = vecSmoother.getAverage(smoothedForce);
+		fArrow.updateArrow(getTranslation(), smoothedForce); 
 	}
 	
 	private void castShadow() {
