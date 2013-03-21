@@ -2,7 +2,6 @@ package net.meshlabs.yaam;
 
 import net.meshlabs.yaam.util.VectorAverager;
 import android.util.FloatMath;
-import android.util.Log;
 
 import com.threed.jpct.Matrix;
 import com.threed.jpct.Object3D;
@@ -13,14 +12,15 @@ public class Marble extends Object3D {
 	public final static String TEXTURE = "marbleTexture";
 	private final GameWorld world;
 	private final ForceArrow fArrow;
-	private final VelocityArrow vArrow;
+	//private final VelocityArrow vArrow;
 	private final BlobShadow shadow;
+	private final PathTracer pathTracer;
 	
-	private float ELASTICITY = 0.6f;
+	private final float elasticity = 0.65f;
+	private final float mass = 4f;
 	
 	private final float radius;
 	private final SimpleVector ellipsoid;
-	private SimpleVector position = new SimpleVector();
 	private SimpleVector velocity = new SimpleVector();
 	private SimpleVector force = new SimpleVector();
 	
@@ -30,15 +30,13 @@ public class Marble extends Object3D {
 	// For movement
 	private SimpleVector dPosition = new SimpleVector(); // create once and reuse each tick
 	private SimpleVector dVelocity = new SimpleVector();
-	//public SimpleVector collisionPoint = new SimpleVector(); // hooks into CollisionHandler
 	public SimpleVector lastCollisionNormal = new SimpleVector();
 	private SimpleVector lastTangentVelocity = new SimpleVector(); // For "rotational inertia"
 	
 	public SimpleVector shadowNormal = new SimpleVector();
 	public SimpleVector shadowContact = new SimpleVector();
 	
-	private int inContact = 0;
-	private float mass = 4f;
+	private boolean isAlive = true;
 	
 	public Marble(GameWorld w, float radius) {
 		// Start with a copy of a sphere
@@ -48,7 +46,8 @@ public class Marble extends Object3D {
 		this.radius = radius;
 		this.ellipsoid = new SimpleVector(radius, radius, radius);
 		this.fArrow = ForceArrow.create(world, radius);
-		this.vArrow = VelocityArrow.create(world, radius);
+		//this.vArrow = VelocityArrow.create(world, radius);
+		this.pathTracer = new PathTracer(this, world);
 		
 		this.shadow = new BlobShadow(world, radius*2f);
 		
@@ -73,7 +72,7 @@ public class Marble extends Object3D {
 	public void timeStep(float stepMS, float timeScaleFactor) {
 		float step = stepMS*timeScaleFactor/1000.0f;
 		
-		vArrow.updateArrow(getTranslation(), velocity, timeScaleFactor);
+		//vArrow.updateArrow(getTranslation(), velocity, timeScaleFactor);
 		
 		dPosition.set(velocity);
 		dPosition.scalarMul(step);
@@ -99,7 +98,7 @@ public class Marble extends Object3D {
 			lastTangentVelocity  = tangentV;
 			
 			// then invert normal V to bounce off the surface
-			normalV.scalarMul(-1.0f*ELASTICITY);
+			normalV.scalarMul(-1.0f*elasticity);
 			velocity = normalV.calcAdd(tangentV);
 			
 			//Log.i("Marble", "Coll n="+lastCollisionNormal+" vel="+velocity+" adj="+adjPosition+" dp="+dPosition);
@@ -113,8 +112,6 @@ public class Marble extends Object3D {
 			*/
 			
 		} else {	// no collision
-			inContact = 0;
-			//this.disableCollisionListeners();
 			velocity.add(dVelocity);
 		}
 		
@@ -126,9 +123,41 @@ public class Marble extends Object3D {
 		
 		castShadow();
 		updateArrow();
+		pathTracer.timeStep(step);
 		
 		force.set(0,0,0);
 
+	}
+	
+	public void resetState(SimpleVector position) {
+		velocity.set(SimpleVector.ORIGIN);
+		force.set(SimpleVector.ORIGIN);
+		lastCollisionNormal.set(SimpleVector.ORIGIN);
+		lastTangentVelocity.set(SimpleVector.ORIGIN);
+		pathTracer.resetTraces();
+		this.clearRotation();
+		this.clearTranslation();
+		this.translate(position);
+	}
+	
+	private final static float DEATH_LENGTH = 800;
+	private float deathTime = 0;
+	public boolean deathSequence(float timeStep) {
+		if (deathTime > DEATH_LENGTH) { 
+			deathTime = 0;
+			return true; 
+		}
+
+		if (deathTime < 0.01) {
+			this.clearRotation();
+		}
+		deathTime += timeStep;
+		Matrix rotm = this.getRotationMatrix();
+		
+		float oldValue = rotm.get(1, 1);
+		rotm.set(1, 1, -(timeStep/DEATH_LENGTH) + oldValue);
+		
+		return false;
 	}
 	
 	private void updateArrow() {

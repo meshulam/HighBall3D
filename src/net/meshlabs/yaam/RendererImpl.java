@@ -56,6 +56,7 @@ public class RendererImpl implements GLSurfaceView.Renderer {
 			Logger.log(fps + "fps, smoothedStep="+timeSmoother.getAverage());
 			fps = 0;
 			lastTime = newTime;
+			gameWorld.printStatus();
 		}
 		fps++;
 	}

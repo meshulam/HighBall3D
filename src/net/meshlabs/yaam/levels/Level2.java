@@ -5,44 +5,75 @@ import java.util.Set;
 
 import net.meshlabs.yaam.GameWorld;
 import net.meshlabs.yaam.util.GraphicsUtils;
+import android.util.Log;
 
 import com.threed.jpct.CollisionListener;
 import com.threed.jpct.Object3D;
+import com.threed.jpct.OcTree;
+import com.threed.jpct.PolygonManager;
+import com.threed.jpct.SimpleVector;
 
-public class Level2 {
+public class Level2 implements ILevel {
 	public final static String MAP_TEXTURE = "floor.png";
-	private final static String MODEL_FILE = "halfpipe2.3ds";
-	private final GameWorld world;
-	private Object3D statics;
+	private final static String MODEL_FILE = "halfpipe.3ds";
+	private final static SimpleVector STARTING_BALL_POSITION = new SimpleVector(27, -4, 0);
+	private final static float STARTING_CAMERA_ANGLE = 0; // Radians around the y axis, 0=looking toward -x
 	
-	private Set<Object3D> objects = new HashSet<Object3D>();
+	// These two vectors create the killer boundary box. 
+	private final static SimpleVector BOUNDARY_MAX = new SimpleVector(500, 10, 500);
+	private final static SimpleVector BOUNDARY_MIN = new SimpleVector(-500, -10000, -500);
+	private final GameWorld world;
+	
+	private Set<Object3D> statics = new HashSet<Object3D>();
 	
 	public Level2(GameWorld world) {
 		this.world = world;
 		initialize();
 	}
 	
-	public void initialize() {
+	private void initialize() {
 		Object3D obj = world.load3DS(MODEL_FILE, 0.5f);
 		
-		objects.add(obj);
-		GraphicsUtils.printPolyInfo(obj, 3, 0, true);
+		statics.add(obj);
 		loadToWorld();
 	}
 	
 	private void loadToWorld() {
-		for (Object3D obj: objects) {
+		for (Object3D obj: statics) {
 			obj.setCollisionMode(Object3D.COLLISION_CHECK_OTHERS);
+			obj.setCollisionOptimization(true);
+			OcTree tree = new OcTree(obj, 500, OcTree.MODE_OPTIMIZED);
+			tree.setCollisionUse(true);
+			tree.setRenderingUse(false);
+			obj.setOcTree(tree);
 			obj.strip();
 			obj.build();
 			world.addObject(obj);
 		}
 	}
 	
-	public void addCollisionLister(CollisionListener listener) {
-		for (Object3D obj : objects) {
+	public void addStaticCollisionListener(CollisionListener listener) {
+		for (Object3D obj : statics) {
 			obj.addCollisionListener(listener);
 		}
+	}
+	
+	public boolean isOutsideBoundaries(SimpleVector position) {
+		if (position.x > BOUNDARY_MAX.x || position.x < BOUNDARY_MIN.x ||
+			position.y > BOUNDARY_MAX.y || position.y < BOUNDARY_MIN.y ||
+			position.z > BOUNDARY_MAX.z || position.z < BOUNDARY_MIN.z ) {
+			//Log.i("Level2", "Pos "+position+" violates bounds min="+BOUNDARY_MIN+" max="+BOUNDARY_MAX);
+			return true;
+		}
+		return false;
+	}
+	
+	public SimpleVector getStartingBallPosition() {
+		return STARTING_BALL_POSITION;
+	}
+	
+	public float getStartingCameraAngle() {
+		return STARTING_CAMERA_ANGLE;
 	}
 
 }

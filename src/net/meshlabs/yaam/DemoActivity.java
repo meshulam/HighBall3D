@@ -7,8 +7,8 @@ import android.util.Log;
 import android.view.MotionEvent;
 
 public class DemoActivity extends Activity {
-	
-	private TouchHandler mGLView;
+	 
+	private TouchHandlerGLView mGLView;
 	//private RendererImpl renderer;
 	private GameWorld gameWorld;
 
@@ -18,7 +18,7 @@ public class DemoActivity extends Activity {
         super.onCreate(savedInstanceState);
         
         
-        mGLView = new TouchHandler(getApplication());
+        mGLView = new TouchHandlerGLView(getApplication());
         // Uncomment here and change the framebuffer call to use ogl2
         // mGLView.setEGLContextClientVersion(2);
         
@@ -57,31 +57,5 @@ public class DemoActivity extends Activity {
 	
 	private float mPreviousX = 0;
 	private float mPreviousY = 0;
-	/*
-	public boolean onTouchEvent(MotionEvent e) {
-		float x = e.getX();
-		float y = e.getY();
-		
-		switch (e.getAction()) {
-		case MotionEvent.ACTION_MOVE:
-			float dX = x-mPreviousX;
-    		float dY = y-mPreviousY;
-    		//mRenderer.mAngleChange += (-dX/getWidth() * 50f);
-			//mRenderer.mDistanceChange += (dY/getHeight() * 10);
-			gameWorld.applyForce(dX/mGLView.getHeight(), dY/mGLView.getHeight()); // Use same denominator so it feels balanced
-
-			//mGLView.requestRender();
-			break;
-		case MotionEvent.ACTION_DOWN:
-		case MotionEvent.ACTION_UP:
-			//mLastTime = SystemClock.uptimeMillis(); 
-			gameWorld.applyForce(0, 0); // apply force in screen coords
-		}
-		
-		mPreviousX = x;
-		mPreviousY = y;
-		return true;
-	}
-	*/
 
 }

@@ -21,8 +21,6 @@ public class ForceArrow {
 	final private GameWorld world;
 	private Object3D shaft;  
 
-	final private SimpleVector[] points = new SimpleVector[2]; 
-	
 	/*
 	 * Public factory method. 
 	 */
@@ -51,10 +49,6 @@ public class ForceArrow {
 		
 		
 		world.reloadTexture(FORCE_TEXTURE, new Texture(32, 32, new RGBColor(0, 255, 0)));
-		Log.i("ForceArrow", "Point object");
-		GraphicsUtils.printPolyInfo(point, 5, 0, false);
-		Log.i("ForceArrow", "Shaft object");
-		GraphicsUtils.printPolyInfo(shaft, 5, 0, false);
 		
 		shaft = Object3D.mergeObjects(shaft, point);
 		shaft.setTexture(FORCE_TEXTURE);
