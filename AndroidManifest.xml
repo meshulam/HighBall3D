@@ -18,6 +18,7 @@
             android:name=".DemoActivity"
             android:label="@string/title_activity_demo" 
             
+            
             android:configChanges="orientation|keyboard|keyboardHidden" 
             android:screenOrientation="nosensor">
             <intent-filter>

@@ -97,8 +97,6 @@ public class Marble extends Object3D {
 		} else {	// no collision
 			velocity.add(dVelocity);
 		}
-		checkCoinCollisions(adjPosition);
-		
 		
 		this.translate(adjPosition);
 		this.getTransformedCenter(world.state.marblePosition);
@@ -115,13 +113,6 @@ public class Marble extends Object3D {
 		pathTracer.timeStep(step);
 		
 		force.set(0,0,0);
-	}
-	
-	private void checkCoinCollisions(final SimpleVector move) {
-		CoinKeeper keeper = world.keeper;
-		keeper.setCollisionMode(COLLISION_CHECK_OTHERS);
-		this.checkForCollisionSpherical(move, radius);
-		keeper.setCollisionMode(COLLISION_CHECK_NONE);
 	}
 	
 	public void resetState(final SimpleVector position) {

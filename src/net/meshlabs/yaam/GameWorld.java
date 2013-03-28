@@ -8,12 +8,8 @@ import java.util.Set;
 import net.meshlabs.yaam.levels.ILevel;
 import net.meshlabs.yaam.levels.Level2;
 import net.meshlabs.yaam.objects.BlobShadow;
-import net.meshlabs.yaam.objects.CoinKeeper;
 import net.meshlabs.yaam.objects.Marble;
-import raft.glfont.android.AGLFont;
 import android.app.Activity;
-import android.graphics.Paint;
-import android.graphics.Typeface;
 import android.os.SystemClock;
 import android.util.FloatMath;
 import android.util.Log;
@@ -26,7 +22,6 @@ import com.threed.jpct.Light;
 import com.threed.jpct.Loader;
 import com.threed.jpct.Matrix;
 import com.threed.jpct.Object3D;
-import com.threed.jpct.RGBColor;
 import com.threed.jpct.SimpleVector;
 import com.threed.jpct.Texture;
 import com.threed.jpct.TextureManager;
@@ -40,8 +35,7 @@ public class GameWorld {
 	protected RendererImpl renderer;
 	private World graphicsWorld;
 	private HudPrinter hudPrinter;
-	public CoinKeeper keeper;
-	
+
 	final public SimpleVector gravity = new SimpleVector(0, 6, 0);
 	private Marble marble;
 	private Camera camera;
@@ -66,9 +60,7 @@ public class GameWorld {
 		
 		this.graphicsWorld = new World();
 		initializeWorld();
-		this.hudPrinter = new HudPrinter(state);
-		this.keeper = new CoinKeeper(this);
-		
+		this.hudPrinter = new HudPrinter(state);		
 		
 	}
 	

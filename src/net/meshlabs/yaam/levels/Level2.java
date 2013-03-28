@@ -1,17 +1,9 @@
 package net.meshlabs.yaam.levels;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import net.meshlabs.yaam.GameWorld;
-import net.meshlabs.yaam.objects.Coin;
-import net.meshlabs.yaam.utils.GraphicsUtils;
-import android.util.Log;
 
-import com.threed.jpct.CollisionListener;
 import com.threed.jpct.Object3D;
 import com.threed.jpct.OcTree;
-import com.threed.jpct.PolygonManager;
 import com.threed.jpct.SimpleVector;
 
 public class Level2 implements ILevel {
@@ -35,13 +27,7 @@ public class Level2 implements ILevel {
 	private void initialize() {
 		Object3D obj = world.load3DS(MODEL_FILE, 0.5f);
 		loadStatic(obj);
-		
-		Coin.registerPrototype(world);
-		
-		Coin.createAt(7, -1.5f, 7);
-		Coin.createAt(7, -10, 7);
-		Coin.createAt(0, -8, 0);
-		Coin.createAt(0, 3, 0);
+
 	}
 	
 	
