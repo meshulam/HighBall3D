@@ -23,8 +23,6 @@ public class TouchHandlerGLView extends GLSurfaceView {
 	public boolean onTouchEvent(MotionEvent e) {
 		int pointerCount = e.getPointerCount();
 		
-		
-		
 		if (pointerCount == 1) {  // 1 finger, apply a force
 			if (e.getActionMasked() == MotionEvent.ACTION_MOVE) {
 				handle1Pointer(e);

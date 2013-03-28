@@ -4,9 +4,9 @@ import android.app.Activity;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MotionEvent;
 
 public class DemoActivity extends Activity {
+	public final static String TAG = "Activity";
 	 
 	private TouchHandlerGLView mGLView;
 	//private RendererImpl renderer;
@@ -14,9 +14,8 @@ public class DemoActivity extends Activity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-    	Log.i("Activity", "onCreate");
+    	Log.i(TAG, "onCreate");
         super.onCreate(savedInstanceState);
-        
         
         mGLView = new TouchHandlerGLView(getApplication());
         // Uncomment here and change the framebuffer call to use ogl2
@@ -37,25 +36,27 @@ public class DemoActivity extends Activity {
 
 	@Override
 	protected void onResume() {
-		Log.i("Activity", "onResume");
+		Log.i(TAG, "onResume");
 		super.onResume();
-		Log.i("Activity", "did super.resume");
 		mGLView.onResume();
-		Log.i("Activity", "did glview.resume");
+		gameWorld.onResume();
 	}
 
 	@Override
 	protected void onStop() {
-		Log.i("Activity", "onStop");
+		Log.i(TAG, "onStop");
 		super.onStop();
 	}
 	
 	@Override
-	public void onConfigurationChanged(Configuration c) {
-		Log.i("Activity", "onConfigurationChanged:"+c.toString());
+	protected void onDestroy() {
+		Log.i(TAG, "onDestroy");
+		super.onDestroy();
+		gameWorld.onDestroy();
 	}
 	
-	private float mPreviousX = 0;
-	private float mPreviousY = 0;
-
+	@Override
+	public void onConfigurationChanged(Configuration c) {
+		Log.i(TAG, "onConfigurationChanged:"+c.toString());
+	}
 }

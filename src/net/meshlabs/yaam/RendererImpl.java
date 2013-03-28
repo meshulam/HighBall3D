@@ -3,8 +3,8 @@ package net.meshlabs.yaam;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-import net.meshlabs.yaam.util.Averager;
-import net.meshlabs.yaam.util.TimeSmoother;
+import net.meshlabs.yaam.utils.Averager;
+import net.meshlabs.yaam.utils.TimeSmoother;
 import android.opengl.GLSurfaceView;
 import android.util.Log;
 
@@ -18,7 +18,7 @@ public class RendererImpl implements GLSurfaceView.Renderer {
 	// 	private float smoothedDRealTime = 17.5f;
 	//private float movAvgDTime = smoothedDRealTime;
 	
-	private Averager timeSmoother;
+	public Averager timeSmoother;
 	long lastDrawTime = 0;
 	
 	private long lastTime = 0;
@@ -27,6 +27,7 @@ public class RendererImpl implements GLSurfaceView.Renderer {
 	private RGBColor backColor = new RGBColor(50, 50, 50);
 	
 	private int fps = 30;
+	public int lastFps = fps;
 	
 	public RendererImpl(GameWorld game) {
 		super();
@@ -54,6 +55,7 @@ public class RendererImpl implements GLSurfaceView.Renderer {
 		
 		if (newTime - lastTime >=1000) {
 			Logger.log(fps + "fps, smoothedStep="+timeSmoother.getAverage());
+			gameWorld.state.fps = fps;
 			fps = 0;
 			lastTime = newTime;
 			gameWorld.printStatus();
@@ -75,7 +77,7 @@ public class RendererImpl implements GLSurfaceView.Renderer {
 	@Override
 	public void onSurfaceCreated(GL10 gl, EGLConfig config) {
 		Log.i("Renderer", "onSurfaceCreated");
-		gameWorld.createWorld();
+		lastDrawTime = 0;
 	}
 	
 	protected FrameBuffer getFrameBuffer() {

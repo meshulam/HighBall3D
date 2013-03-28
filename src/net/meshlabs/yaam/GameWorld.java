@@ -2,22 +2,31 @@ package net.meshlabs.yaam;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 import net.meshlabs.yaam.levels.ILevel;
 import net.meshlabs.yaam.levels.Level2;
+import net.meshlabs.yaam.objects.BlobShadow;
+import net.meshlabs.yaam.objects.CoinKeeper;
+import net.meshlabs.yaam.objects.Marble;
+import raft.glfont.android.AGLFont;
 import android.app.Activity;
+import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.os.SystemClock;
 import android.util.FloatMath;
 import android.util.Log;
 
 import com.threed.jpct.Camera;
+import com.threed.jpct.CollisionListener;
 import com.threed.jpct.Config;
 import com.threed.jpct.FrameBuffer;
 import com.threed.jpct.Light;
 import com.threed.jpct.Loader;
 import com.threed.jpct.Matrix;
 import com.threed.jpct.Object3D;
+import com.threed.jpct.RGBColor;
 import com.threed.jpct.SimpleVector;
 import com.threed.jpct.Texture;
 import com.threed.jpct.TextureManager;
@@ -25,27 +34,42 @@ import com.threed.jpct.World;
 import com.threed.jpct.util.MemoryHelper;
 
 public class GameWorld {
+	public final static String TAG = "GameWorld";
 	
 	private Activity activity;
 	protected RendererImpl renderer;
 	private World graphicsWorld;
+	private HudPrinter hudPrinter;
+	public CoinKeeper keeper;
 	
-	final protected SimpleVector gravity = new SimpleVector(0, 6, 0);
+	final public SimpleVector gravity = new SimpleVector(0, 6, 0);
 	private Marble marble;
 	private Camera camera;
 	private ILevel level;
+	private final Set<Object3D> staticObjects = new HashSet<Object3D>();
+	private CollisionListener staticCollisionListener;
+
+	public GameState state;
 
 	private SimpleVector cameraPos = new SimpleVector(); // to reduce allocations
 
 	private float cameraDistance = 0.4f;	// a value in [0,1]
 	private float cameraAngle = 0; 	// Angle around the y axis, 0= looking toward -x
 	
-	private long lastTimestamp = 0;
 	private long last2FingerTimestamp = 0;
 	
 	public GameWorld(Activity parent) {
 		this.activity = parent;
 		this.renderer = new RendererImpl(this);
+		
+		this.state = new GameState();
+		
+		this.graphicsWorld = new World();
+		initializeWorld();
+		this.hudPrinter = new HudPrinter(state);
+		this.keeper = new CoinKeeper(this);
+		
+		
 	}
 	
 	// angle and magnitude of force vector on the screen. turns into world coords for the marble. 
@@ -88,10 +112,6 @@ public class GameWorld {
 		camera.lookAt(marble.getTransformedCenter());
 	}
 	
-	private static final float TIME_RAMP_START = 0;
-	private static final float TIME_RAMP_LENGTH = 600;
-	private static final float MAX_TIME_SCALING = 0.25f;
-	
 	private float calcTimeScaleFactor() {
 		long timeSinceFrozen = SystemClock.uptimeMillis() - last2FingerTimestamp;
 		float timeScaleFactor = 1;
@@ -105,36 +125,46 @@ public class GameWorld {
 	
 	// The main method that gets called each game loop
 	public void updateGame(float timeStep) {
-		if (level.isOutsideBoundaries(marble.getTransformedCenter())) {
+		if (level.isOutsideBoundaries(marble.getTransformedCenter())) {		// Death sequence
 			boolean finished = marble.deathSequence(timeStep);
 			if (finished) { 
 				marble.resetState(level.getStartingBallPosition());
 				cameraAngle = level.getStartingCameraAngle();
-				Log.i("Game", "Finished dying!");
+				Log.i(TAG, "Finished dying!");
 			}
 		} else {
 			float timeScaleFactor = calcTimeScaleFactor();
 			marble.timeStep(timeStep, timeScaleFactor);	
 		}
 		pointCamera();
-		
+	}
+	
+	public void onResume() {
+		renderer.timeSmoother.initialize(17.5f);
 	}
 	
 	public void renderAndDraw(FrameBuffer fb) {
 		graphicsWorld.renderScene(fb);
 		graphicsWorld.draw(fb);
+		hudPrinter.printHud(fb);
 	}
 	
 	public void resyncRenderer() {
 		reloadTextures();
 	}
 	
-	public void createWorld() {
-		if (graphicsWorld != null) {
-			Log.i("GameWorld", "Destroying old graphicsWorld");
-			graphicsWorld.dispose();
-		}
-		graphicsWorld = new World();
+	/**
+	 * Called after we are done using the GameWorld.
+	 */
+	public void onDestroy() {
+		Log.i(TAG, "Cleaning up GameWorld");
+		graphicsWorld.dispose();
+	}
+	
+	/**
+	 * Populates the JPCT world. Safe to call multiple times? Shouldn't need to be.
+	 */
+	private void initializeWorld() {
 		setJPCTConfig();
 		graphicsWorld.setAmbientLight(180, 180, 180); 	// Default 100,100,100
 		
@@ -149,21 +179,24 @@ public class GameWorld {
 		
 		marble = new Marble(this, 0.5f);
 		marble.resetState(level.getStartingBallPosition());
-		CollisionHandler ch = new CollisionHandler(marble);
-		level.addStaticCollisionListener(ch);
-		cameraAngle = level.getStartingCameraAngle();
+		staticCollisionListener = new CollisionHandler(marble);
+		for (Object3D obj : staticObjects) {
+			obj.addCollisionListener(staticCollisionListener);
+		}
 		
+		cameraAngle = level.getStartingCameraAngle();
 		camera = graphicsWorld.getCamera();
 		MemoryHelper.compact();
 	}
 	
 	private void setJPCTConfig() {
-		Config.polygonIDLimit = 10;
-		Config.collideOffset = 10;
+		//Config.collideOffset = 10;
+		Config.glTransparencyMul = 0.0039f;	// Set transparency in 0-255
+		Config.glTransparencyOffset = 0.0039f;
 	}
 	
 	public void reloadTextures() {
-		reloadTextureResource(R.raw.ball, false, Marble.TEXTURE);
+		reloadTextureResource(R.raw.ball2, false, Marble.TEXTURE);
 		reloadTextureResource(R.raw.floor, false, Level2.MAP_TEXTURE);
 		reloadTextureResource(R.raw.shadow_noalpha, false, BlobShadow.TEXTURE);
 	}
@@ -176,7 +209,7 @@ public class GameWorld {
 		TextureManager.getInstance().addTexture(textureName, texture);
 	}
 	
-	private void reloadTextureResource(int resourceID, boolean useAlpha, String textureName) {
+	public void reloadTextureResource(int resourceID, boolean useAlpha, String textureName) {
 		Texture tex = new Texture(activity.getResources().openRawResource(resourceID), useAlpha);
 		reloadTexture(textureName, tex);
 	}
@@ -216,16 +249,22 @@ public class GameWorld {
 		obj3d.build();
 		return obj3d;
 	}
+	
+	public void addStatic(Object3D obj) {
+		staticObjects.add(obj);
+		graphicsWorld.addObject(obj);
+		if (staticCollisionListener != null) {
+			obj.addCollisionListener(staticCollisionListener);
+		}
+	}
 
 	public void addObject(Object3D obj) {
 		graphicsWorld.addObject(obj);
 	}
 	
-	/**
-	 * 
-	 */
+
 	public void printStatus() {
-		Log.i("GameWorld", "Ball@"+marble.getTransformedCenter()+" Camera pointing"+camera.getDirection());
+		Log.i(TAG, "Ball@"+marble.getTransformedCenter()+" Camera pointing"+camera.getDirection());
 	}
 
 }

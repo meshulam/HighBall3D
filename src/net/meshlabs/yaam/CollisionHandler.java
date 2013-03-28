@@ -1,5 +1,6 @@
 package net.meshlabs.yaam;
 
+import net.meshlabs.yaam.objects.Marble;
 import android.util.Log;
 
 import com.threed.jpct.CollisionEvent;
@@ -35,12 +36,11 @@ public class CollisionHandler implements CollisionListener {
 			for (int i=0; i<polys.length; i++) {
 				source.lastCollisionNormal.add(pm.getTransformedNormal(polys[i]));
 			}
-			source.lastCollisionNormal.scalarMul(1f / polys.length);
-			//source.lastCollisionNormal = pm.getTransformedNormal(polys[0]); 
+			source.lastCollisionNormal.normalize(source.lastCollisionNormal);	// collision polygons might have origin vectors?
 		}
 		
 		
-//		// just to see if this ever happens
+		// just to see if this ever happens
 //		if (polys.length > 1) {
 //			for (int i=0; i<polys.length; i++) {
 //				Log.i("CollisionHandler", "Poly"+i+" normal:"+pm.getTransformedNormal(polys[i]));

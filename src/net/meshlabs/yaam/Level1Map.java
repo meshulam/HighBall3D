@@ -3,7 +3,7 @@ package net.meshlabs.yaam;
 import java.util.HashSet;
 import java.util.Set;
 
-import net.meshlabs.yaam.util.GraphicsUtils;
+import net.meshlabs.yaam.utils.GraphicsUtils;
 
 import com.threed.jpct.CollisionListener;
 import com.threed.jpct.Object3D;

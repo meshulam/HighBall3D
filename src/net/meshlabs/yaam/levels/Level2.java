@@ -4,7 +4,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import net.meshlabs.yaam.GameWorld;
-import net.meshlabs.yaam.util.GraphicsUtils;
+import net.meshlabs.yaam.objects.Coin;
+import net.meshlabs.yaam.utils.GraphicsUtils;
 import android.util.Log;
 
 import com.threed.jpct.CollisionListener;
@@ -24,7 +25,7 @@ public class Level2 implements ILevel {
 	private final static SimpleVector BOUNDARY_MIN = new SimpleVector(-500, -10000, -500);
 	private final GameWorld world;
 	
-	private Set<Object3D> statics = new HashSet<Object3D>();
+	//private Set<Object3D> statics = new HashSet<Object3D>();
 	
 	public Level2(GameWorld world) {
 		this.world = world;
@@ -33,29 +34,28 @@ public class Level2 implements ILevel {
 	
 	private void initialize() {
 		Object3D obj = world.load3DS(MODEL_FILE, 0.5f);
+		loadStatic(obj);
 		
-		statics.add(obj);
-		loadToWorld();
+		Coin.registerPrototype(world);
+		
+		Coin.createAt(7, -1.5f, 7);
+		Coin.createAt(7, -10, 7);
+		Coin.createAt(0, -8, 0);
+		Coin.createAt(0, 3, 0);
 	}
 	
-	private void loadToWorld() {
-		for (Object3D obj: statics) {
-			obj.setCollisionMode(Object3D.COLLISION_CHECK_OTHERS);
-			obj.setCollisionOptimization(true);
-			OcTree tree = new OcTree(obj, 500, OcTree.MODE_OPTIMIZED);
-			tree.setCollisionUse(true);
-			tree.setRenderingUse(false);
-			obj.setOcTree(tree);
-			obj.strip();
-			obj.build();
-			world.addObject(obj);
-		}
-	}
 	
-	public void addStaticCollisionListener(CollisionListener listener) {
-		for (Object3D obj : statics) {
-			obj.addCollisionListener(listener);
-		}
+	
+	private void loadStatic(Object3D obj) {
+		obj.setCollisionMode(Object3D.COLLISION_CHECK_OTHERS);
+		obj.setCollisionOptimization(true);
+		OcTree tree = new OcTree(obj, 500, OcTree.MODE_OPTIMIZED);
+		tree.setCollisionUse(true);
+		tree.setRenderingUse(false);
+		obj.setOcTree(tree);
+		obj.strip();
+		obj.build();
+		world.addStatic(obj);
 	}
 	
 	public boolean isOutsideBoundaries(SimpleVector position) {
