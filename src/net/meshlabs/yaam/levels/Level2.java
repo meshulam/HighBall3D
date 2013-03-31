@@ -8,8 +8,8 @@ import com.threed.jpct.SimpleVector;
 
 public class Level2 implements ILevel {
 	public final static String MAP_TEXTURE = "floor.png";
-	private final static String MODEL_FILE = "halfpipe.3ds";
-	private final static SimpleVector STARTING_BALL_POSITION = new SimpleVector(27, -4, 0);
+	private final static String MODEL_FILE = "bowl.3ds";
+	private final static SimpleVector STARTING_BALL_POSITION = new SimpleVector(0, 0, 0);
 	private final static float STARTING_CAMERA_ANGLE = 0; // Radians around the y axis, 0=looking toward -x
 	
 	// These two vectors create the killer boundary box. 
@@ -25,7 +25,9 @@ public class Level2 implements ILevel {
 	}
 	
 	private void initialize() {
-		Object3D obj = world.load3DS(MODEL_FILE, 0.5f);
+		//Object3D obj = world.load3DS(MODEL_FILE, 0.5f);
+		Object3D obj = world.load3DS(MODEL_FILE, 8f);
+		obj.setTexture(MAP_TEXTURE);
 		loadStatic(obj);
 
 	}

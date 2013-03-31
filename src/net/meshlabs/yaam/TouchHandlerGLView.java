@@ -13,6 +13,7 @@ public class TouchHandlerGLView extends GLSurfaceView {
 	
 	public TouchHandlerGLView (Context context) {
 		super(context);
+		this.setKeepScreenOn(true);
 	}
 	
 	protected void setWorld(GameWorld w) {
@@ -72,7 +73,7 @@ public class TouchHandlerGLView extends GLSurfaceView {
 	private float lastDistance2 =  0;
 	private float lastAngle2 = 0;
 	
-	private final static float CAMERA_MOVE_MULTIPLIER = 200;
+	private final static float CAMERA_MOVE_MULTIPLIER = 500;
 	private void handle2Pointer(MotionEvent e) {
 		int p0 = e.findPointerIndex(p0id);
 		int p1 = e.findPointerIndex(p1id);

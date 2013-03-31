@@ -2,11 +2,10 @@ package net.meshlabs.yaam.objects;
 
 import net.meshlabs.yaam.GameWorld;
 import net.meshlabs.yaam.utils.GraphicsUtils;
-import android.util.Log;
 
 import com.threed.jpct.Object3D;
+import com.threed.jpct.Polyline;
 import com.threed.jpct.Primitives;
-import com.threed.jpct.RGBColor;
 import com.threed.jpct.SimpleVector;
 
 public class BlobShadow extends Object3D {
@@ -30,8 +29,7 @@ public class BlobShadow extends Object3D {
 	public void drawAt(SimpleVector position, SimpleVector normal) {
 		this.clearTranslation();
 		this.translate(position.x, position.y-0.1f, position.z);
-		//Log.i("BLobShadow", "At "+position+" normal"+normal);
-		// TODO: un-hardcode this
+
 		this.clearRotation();
 		GraphicsUtils.rotateObject(this, originalOrientation, normal);
 		this.setVisibility(true);

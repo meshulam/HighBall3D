@@ -7,7 +7,9 @@ import java.util.Set;
 
 import net.meshlabs.yaam.levels.ILevel;
 import net.meshlabs.yaam.levels.Level2;
+import net.meshlabs.yaam.objects.ApexHandler;
 import net.meshlabs.yaam.objects.BlobShadow;
+import net.meshlabs.yaam.objects.DynamicHeightMarker;
 import net.meshlabs.yaam.objects.Marble;
 import android.app.Activity;
 import android.os.SystemClock;
@@ -22,6 +24,7 @@ import com.threed.jpct.Light;
 import com.threed.jpct.Loader;
 import com.threed.jpct.Matrix;
 import com.threed.jpct.Object3D;
+import com.threed.jpct.Polyline;
 import com.threed.jpct.SimpleVector;
 import com.threed.jpct.Texture;
 import com.threed.jpct.TextureManager;
@@ -35,10 +38,12 @@ public class GameWorld {
 	protected RendererImpl renderer;
 	private World graphicsWorld;
 	private HudPrinter hudPrinter;
+	private DynamicHeightMarker heightMarker;
+	public ApexHandler apexHandler;
 
 	final public SimpleVector gravity = new SimpleVector(0, 6, 0);
 	private Marble marble;
-	private Camera camera;
+	public Camera camera;
 	private ILevel level;
 	private final Set<Object3D> staticObjects = new HashSet<Object3D>();
 	private CollisionListener staticCollisionListener;
@@ -47,7 +52,7 @@ public class GameWorld {
 
 	private SimpleVector cameraPos = new SimpleVector(); // to reduce allocations
 
-	private float cameraDistance = 0.4f;	// a value in [0,1]
+	private float cameraDistance = 0.75f;	// a value in [0,1]
 	private float cameraAngle = 0; 	// Angle around the y axis, 0= looking toward -x
 	
 	private long last2FingerTimestamp = 0;
@@ -60,7 +65,9 @@ public class GameWorld {
 		
 		this.graphicsWorld = new World();
 		initializeWorld();
-		this.hudPrinter = new HudPrinter(state);		
+		this.hudPrinter = new HudPrinter(state);
+		this.heightMarker = new DynamicHeightMarker(this);
+		this.apexHandler = new ApexHandler(this);
 		
 	}
 	
@@ -87,22 +94,29 @@ public class GameWorld {
 	}
 	
 	private final static float CAMERA_MIN_DISTANCE=2f;
-	private final static float CAMERA_MAX_DISTANCE=7f;
-	private final static float CAMERA_CURVATURE=0.3f;
-	
-	private void pointCamera() {
+	private final static float CAMERA_MAX_DISTANCE=10f;
+	private final static float CAMERA_MAX_ANGLE=0.8f; // Fraction of 100% vertical
+
+	private void pointCameraSmart() {
 		float adjustedCameraDistance = CAMERA_MIN_DISTANCE+cameraDistance*(CAMERA_MAX_DISTANCE-CAMERA_MIN_DISTANCE);
-		float xPos = adjustedCameraDistance*FloatMath.cos(cameraAngle);
-		float zPos = adjustedCameraDistance*FloatMath.sin(cameraAngle);
 		
-		float yPos = -CAMERA_CURVATURE*adjustedCameraDistance*adjustedCameraDistance;	// Camera traces out a parabola as its distance increases
+		float heightAngle = (0.5f - state.marblePosition.y / 50);
+		if (heightAngle > CAMERA_MAX_ANGLE) {
+			heightAngle = CAMERA_MAX_ANGLE;
+		}
+		heightAngle = heightAngle * 3.14159f/2;
+		//float xPos = adjustedCameraDistance*FloatMath.cos(cameraAngle);
+		float xPos = adjustedCameraDistance*FloatMath.cos(heightAngle);
 		
-		cameraPos.set(xPos, yPos, zPos);
+		float yPos = -adjustedCameraDistance*FloatMath.sin(heightAngle);
+		
+		cameraPos.set(xPos, yPos, 0);
 		//Log.i("Camera", "Setting camera pos to "+cameraPos+" relative");
-		cameraPos.add(marble.getTransformedCenter());
+		cameraPos.add(state.marblePosition);
 		camera.setPosition(cameraPos);
-		camera.lookAt(marble.getTransformedCenter());
+		camera.lookAt(state.marblePosition);
 	}
+	
 	
 	private float calcTimeScaleFactor() {
 		long timeSinceFrozen = SystemClock.uptimeMillis() - last2FingerTimestamp;
@@ -115,7 +129,8 @@ public class GameWorld {
 		return timeScaleFactor;
 	}
 	
-	// The main method that gets called each game loop
+	
+	// The main method that gets called each game loop. TimeStep is in ms.
 	public void updateGame(float timeStep) {
 		if (level.isOutsideBoundaries(marble.getTransformedCenter())) {		// Death sequence
 			boolean finished = marble.deathSequence(timeStep);
@@ -126,9 +141,11 @@ public class GameWorld {
 			}
 		} else {
 			float timeScaleFactor = calcTimeScaleFactor();
-			marble.timeStep(timeStep, timeScaleFactor);	
+			marble.timeStep(timeStep*timeScaleFactor);
+			
+			apexHandler.timeStep(timeStep);
 		}
-		pointCamera();
+		pointCameraSmart();
 	}
 	
 	public void onResume() {
@@ -138,6 +155,9 @@ public class GameWorld {
 	public void renderAndDraw(FrameBuffer fb) {
 		graphicsWorld.renderScene(fb);
 		graphicsWorld.draw(fb);
+		
+		apexHandler.drawTo(fb);
+		//heightMarker.draw(fb);
 		hudPrinter.printHud(fb);
 	}
 	
@@ -149,7 +169,6 @@ public class GameWorld {
 	 * Called after we are done using the GameWorld.
 	 */
 	public void onDestroy() {
-		Log.i(TAG, "Cleaning up GameWorld");
 		graphicsWorld.dispose();
 	}
 	
@@ -252,6 +271,10 @@ public class GameWorld {
 
 	public void addObject(Object3D obj) {
 		graphicsWorld.addObject(obj);
+	}
+	
+	public void addPolyline(Polyline obj) {
+		graphicsWorld.addPolyline(obj);
 	}
 	
 

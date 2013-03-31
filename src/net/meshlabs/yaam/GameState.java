@@ -1,5 +1,8 @@
 package net.meshlabs.yaam;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import org.simpleframework.xml.convert.Convert;
@@ -11,6 +14,8 @@ public class GameState {
 	@Element
 	@Convert(StateHandler.VectorConverter.class)
 	public SimpleVector marblePosition = new SimpleVector();
+	
+	public List<SimpleVector> apexes = new ArrayList<SimpleVector>();
 	
 	@Element
 	public float maxHeight = 0;

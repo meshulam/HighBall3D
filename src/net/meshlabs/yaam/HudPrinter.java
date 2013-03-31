@@ -23,7 +23,7 @@ public class HudPrinter {
 		paint.setAntiAlias(true);
 		//paint.setTypeface(Typeface.create((String)null, Typeface.BOLD));
 		paint.setTypeface(Typeface.DEFAULT_BOLD);
-		paint.setTextSize(20);
+		paint.setTextSize(24);
 		
 		this.font = new AGLFont(paint);
 	}
@@ -34,8 +34,8 @@ public class HudPrinter {
 		font.blitString(fb, "FPS: "+state.fps, 10, height-10, 255, RGBColor.WHITE);
 
 		//String max = String.format("Max: %4.1f", state.maxHeight);
-		font.blitString(fb, "Height: "+(int)(-state.marblePosition.y), 10, 30, 255, RGBColor.WHITE);
-		font.blitString(fb, "Max: "+(int)(-state.maxHeight), 10, 60, 255, RGBColor.WHITE);
+		font.blitString(fb, "Score: "+state.score, 10, 30, 255, RGBColor.WHITE);
+		font.blitString(fb, "Max: "+state.maxHeight, 10, 70, 255, RGBColor.WHITE);
 	}
 	
 

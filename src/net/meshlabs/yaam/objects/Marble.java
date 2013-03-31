@@ -7,18 +7,22 @@ import android.util.Log;
 
 import com.threed.jpct.Matrix;
 import com.threed.jpct.Object3D;
+import com.threed.jpct.Polyline;
 import com.threed.jpct.Primitives;
+import com.threed.jpct.RGBColor;
 import com.threed.jpct.SimpleVector;
 
 public class Marble extends Object3D {
+	public final static String TAG = "Marble";
 	public final static String TEXTURE = "marbleTexture";
 	private final GameWorld world;
 	private final ForceArrow fArrow;
 
 	private final BlobShadow shadow;
-	private final PathTracer pathTracer;
+	private final SimpleVector[] altitudeArray = {new SimpleVector(), new SimpleVector()};
+	private final Polyline altitudeMarker;
 	
-	private final float elasticity = 0.65f;
+	private final float elasticity = 0.55f;
 	private final float mass = 4f;
 	
 	private final float radius;
@@ -28,6 +32,7 @@ public class Marble extends Object3D {
 	
 	private final VectorAverager vecSmoother = new VectorAverager(.4f, true);
 	private SimpleVector smoothedForce = new SimpleVector();
+	private boolean lastWasAscending = false;
 	
 	// For movement
 	private SimpleVector dPosition = new SimpleVector(); // create once and reuse each tick
@@ -46,14 +51,19 @@ public class Marble extends Object3D {
 		this.radius = radius;
 		this.ellipsoid = new SimpleVector(radius, radius, radius);
 		this.fArrow = ForceArrow.create(world, radius);
-		this.pathTracer = new PathTracer(world);
+		
+		this.altitudeMarker = new Polyline(altitudeArray, RGBColor.GREEN);
+		this.altitudeMarker.setWidth(3);
+		this.altitudeMarker.setPercentage(1f);
+		this.altitudeMarker.setVisible(true);
+		world.addPolyline(this.altitudeMarker);
 		
 		this.shadow = new BlobShadow(world, radius*2f);
 		
 		this.setTexture(TEXTURE);
 		this.calcTextureWrapSpherical();
 		this.setCollisionMode(COLLISION_CHECK_SELF);
-		this.setSpecularLighting(true);
+
 		this.build();
 		this.strip();
 		world.addObject(this);
@@ -67,8 +77,8 @@ public class Marble extends Object3D {
 	}
 	
 	double lastAngle= 0;
-	public void timeStep(float stepMS, float timeScaleFactor) {
-		float step = stepMS*timeScaleFactor/1000.0f;
+	public void timeStep(float stepMS) {
+		float step = stepMS/1000.0f;
 		
 		dPosition.set(velocity);
 		dPosition.scalarMul(step);
@@ -92,7 +102,7 @@ public class Marble extends Object3D {
 			normalV.scalarMul(-1.0f*elasticity);
 			velocity = normalV.calcAdd(tangentV);
 			
-			//Log.i("Marble", "Coll n="+lastCollisionNormal+" vel="+velocity+" adj="+adjPosition+" dp="+dPosition);
+			//Log.i(TAG, "Coll n="+lastCollisionNormal+" vel="+velocity+" adj="+adjPosition+" dp="+dPosition);
 			
 		} else {	// no collision
 			velocity.add(dVelocity);
@@ -101,18 +111,28 @@ public class Marble extends Object3D {
 		this.translate(adjPosition);
 		this.getTransformedCenter(world.state.marblePosition);
 		
-		if (world.state.maxHeight < -world.state.marblePosition.y) 
-			world.state.maxHeight = world.state.marblePosition.y;
-		
 		// this kind of looks like rotational inertia but it's not
 		float rotation = lastTangentVelocity.length()*step * 1f / radius;
 		this.rotateAxis(lastCollisionNormal.calcCross(lastTangentVelocity), -rotation);
 		
 		castShadow();
 		updateArrow();
-		pathTracer.timeStep(step);
+		checkForApex(adjPosition);
+		//pathTracer.timeStep(step);
 		
 		force.set(0,0,0);
+	}
+	
+	private void checkForApex(SimpleVector dPos) {
+		boolean isAscending = (dPos.y < 0);
+
+		if (!isAscending &&	lastWasAscending 
+				&& world.state.marblePosition.y < -2) { 	// We just peaked
+			Log.i(TAG, "Apex with v="+velocity+" dv="+dVelocity);
+			world.apexHandler.addApex(world.state.marblePosition);
+		}
+		
+		lastWasAscending = isAscending;
 	}
 	
 	public void resetState(final SimpleVector position) {
@@ -120,7 +140,7 @@ public class Marble extends Object3D {
 		force.set(SimpleVector.ORIGIN);
 		lastCollisionNormal.set(SimpleVector.ORIGIN);
 		lastTangentVelocity.set(SimpleVector.ORIGIN);
-		pathTracer.resetTraces();
+
 		this.clearRotation();
 		this.clearTranslation();
 		this.translate(position);
@@ -157,12 +177,18 @@ public class Marble extends Object3D {
 	}
 	
 	private void castShadow() {
+		altitudeArray[0].set(world.state.marblePosition);
+		altitudeArray[1].set(world.state.marblePosition);
+		
 		int object = checkForCollision(SimpleVector.create(0, 1f, 0), 100);
 		if (object != Object3D.NO_OBJECT) { // Gotta draw a shadow
 			shadow.drawAt(shadowContact, shadowNormal);
+			altitudeArray[1].y = shadowContact.y;
 		} else {
 			shadow.setVisibility(false);
+			altitudeArray[1].y = 10;
 		}
+		altitudeMarker.update(altitudeArray);
 	}
 	
 
