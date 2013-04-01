@@ -21,8 +21,10 @@ public class ScoringHandler {
 	
 	
 	private final GameWorld world;
-	private final Flasher flasher;
-	private final SimpleVector lastPoint = new SimpleVector();
+	private final ScoreFlasher scoreFlasher;
+	private final StringFlasher stringFlasher;
+	
+	protected final SimpleVector lastPoint = new SimpleVector();
 	public boolean ascending = false;
 	public boolean inFlight = false;
 	
@@ -30,12 +32,14 @@ public class ScoringHandler {
 	public ScoringHandler(GameWorld world) {
 		this.world = world;
 		
-		flasher = new Flasher();
+		scoreFlasher = new ScoreFlasher();
+		stringFlasher = new StringFlasher();
 		realTimeBlitter = new IntBlitter(32);
 	}
 	
 	public void timeStep(float ms) {
-		flasher.timeStep(ms);
+		scoreFlasher.timeStep(ms);
+		stringFlasher.timeStep(ms);
 		SimpleVector position = world.state.marblePosition;
 		if (position.y > MIN_SCORE_HEIGHT) {
 			return;
@@ -64,7 +68,7 @@ public class ScoringHandler {
 	}
 	
 	private void handlePeak(int score) {
-		flasher.drop(lastPoint, score);
+		scoreFlasher.drop(score);
 		world.state.score += score;
 	}
 	
@@ -77,22 +81,87 @@ public class ScoringHandler {
 		if (!inFlight) { return; }
 		inFlight = false;
 		
-		if (flasher.score < 100) { return; }
-		int score = (int) (quality*100);
-		flasher.drop(world.state.marblePosition, score);
-	}
-	
-	public void draw(FrameBuffer fb) {
-		flasher.draw(fb);
+		if (scoreFlasher.score < 100) { return; }
 		
-		if (ascending && lastPoint.y < 0) {
-			realTimeBlitter.blit(fb, scoreForHeight(lastPoint.y), (fb.getWidth()/2), fb.getHeight()/2, IntBlitter.ALIGN_CENTER, 210, RGBColor.WHITE);
+		if (quality > 0.85) {
+			stringFlasher.drop("Perfect! x3");
+			world.state.score += scoreFlasher.score*2;
+		} else if (quality > 0.62) {
+			stringFlasher.drop("Good! x2");
+			world.state.score += scoreFlasher.score;
 		}
 	}
 	
-	class Flasher {
-		private static final float FADEOUT_SECS = 1.3f;
-		private Object3D outline;
+	public void draw(FrameBuffer fb) {
+		scoreFlasher.draw(fb);
+		stringFlasher.draw(fb);
+		if (ascending && lastPoint.y < 0) {
+			realTimeBlitter.blit(fb, scoreForHeight(lastPoint.y), (fb.getWidth()/2), fb.getHeight()/2-40, IntBlitter.ALIGN_CENTER, 210, RGBColor.WHITE);
+		}
+	}
+	
+	class StringFlasher {
+		private static final float FLOAT_MS = 750f;
+		private static final float FADEOUT_MS = 500f;
+		
+		private final AGLFont font;
+		
+		SimpleVector position3D = new SimpleVector();
+		SimpleVector position2D = new SimpleVector();
+		private int transparency = 255;
+		
+		String message;
+		boolean active = false;
+		float timePassed = 0;
+		
+		StringFlasher() {
+			Paint paint = new Paint();
+			paint.setAntiAlias(true);
+			paint.setTypeface(Typeface.DEFAULT_BOLD);
+			paint.setTextSize(28);
+			
+			this.font = new AGLFont(paint);
+		}
+		
+		public void timeStep(float stepMS) {
+			if (!active) { return; }
+			timePassed += stepMS;
+			
+			if (timePassed < FLOAT_MS) {
+				position3D.set(world.state.marblePosition);
+			} else {
+				transparency -= (int) (stepMS*255/(FADEOUT_MS));
+			}
+			
+			if (transparency <=0 ) {
+				reset();
+			}
+		}
+		
+		public void drop(String message) {
+			reset();
+			active = true;
+			position3D.set(world.state.marblePosition);
+			this.message = message;
+		}
+		
+		private void reset() {
+			active = false;
+			timePassed = 0;
+			transparency = 255;
+		}
+		
+		public void draw(FrameBuffer fb) {
+			if (!active) { return; }
+			Interact2D.project3D2D(world.camera, fb, position3D, position2D);
+			font.blitString(fb, message, (int)position2D.x-50, (int)position2D.y-40, transparency, RGBColor.WHITE);
+			
+		}
+		
+	}
+	
+	class ScoreFlasher {
+		private static final float FADEOUT_MS = 1300f;
 		private final IntBlitter blitter;
 		SimpleVector position3D = new SimpleVector();
 		SimpleVector position2D = new SimpleVector();
@@ -101,56 +170,36 @@ public class ScoringHandler {
 		int score = 0;
 		boolean active = false;
 		
-		Flasher() {
-			world.reloadTextureResource(R.raw.trace, true, TEXTURE);
-			
-			Object3D trace = Primitives.getPlane(1, 1f);
-			trace.setTexture(TEXTURE);
-			trace.setBillboarding(true);
-			trace.build();
-			trace.strip();
-			trace.setVisibility(false);
-			this.outline = trace;
-			
+		ScoreFlasher() {
 			this.blitter = new IntBlitter(36);
-			
-			world.addObject(outline);
 		}
 		
 		public void timeStep(float stepMS) {
 			if (!active) { return; }
-			transparency -= (int) (stepMS*255/(FADEOUT_SECS*1000));
-			outline.setTransparency(transparency);
+			transparency -= (int) (stepMS*255/(FADEOUT_MS));
 			if (transparency <=0 ) {
 				reset();
 			}
 		}
 		
-		public void drop(SimpleVector pos3D, int score) {
+		public void drop(int score) {
 			reset();
-			this.position3D.set(pos3D);
+			this.position3D.set(world.state.marblePosition);
 			this.score = score;
-			
-			outline.translate(position3D);
-			active = true;
+			this.active = true;
 		}
 		
 		public void reset() {
 			active = false;
 			transparency = 255;
-			outline.setVisibility(false);
-			outline.clearTranslation();
-			outline.setTransparency(transparency);
 		}
 		
 		public void draw(FrameBuffer fb) {
 			if (!active) { return; }
 			
 			Interact2D.project3D2D(world.camera, fb, position3D, position2D);
-			
-			blitter.blit(fb, score, (int)position2D.x, (int)position2D.y, IntBlitter.ALIGN_CENTER, transparency, RGBColor.WHITE);
+			blitter.blit(fb, score, (int)position2D.x, (int)position2D.y-40, IntBlitter.ALIGN_CENTER, transparency, RGBColor.WHITE);
 		}
-		
 	}
 
 }

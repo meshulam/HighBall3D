@@ -69,8 +69,8 @@ public class RendererImpl implements GLSurfaceView.Renderer {
 		if (fb != null) {
 			fb.dispose();
 		}
-		fb = new FrameBuffer(width, height);
-		//fb = new FrameBuffer(gl, width, height);
+		//fb = new FrameBuffer(width, height);
+		fb = new FrameBuffer(gl, width, height);
 		gameWorld.resyncRenderer();
 	}
 

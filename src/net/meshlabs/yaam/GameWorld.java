@@ -33,7 +33,7 @@ import com.threed.jpct.util.MemoryHelper;
 public class GameWorld {
 	public final static String TAG = "GameWorld";
 	
-	private Activity activity;
+	public Activity activity;
 	protected RendererImpl renderer;
 	private World graphicsWorld;
 	private HudPrinter hudPrinter;

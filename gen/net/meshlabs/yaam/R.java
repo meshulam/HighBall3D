@@ -13,10 +13,11 @@ public final class R {
     public static final class bool {
         /** Enable automatic activity tracking
          */
-        public static final int ga_autoActivityTracking=0x7f060000;
+        public static final int ga_autoActivityTracking=0x7f070000;
+        public static final int ga_debug=0x7f070002;
         /** Enable automatic exception tracking
          */
-        public static final int ga_reportUncaughtExceptions=0x7f060001;
+        public static final int ga_reportUncaughtExceptions=0x7f070001;
     }
     public static final class drawable {
         public static final int app_icon=0x7f020000;
@@ -24,13 +25,18 @@ public final class R {
         public static final int ic_launcher=0x7f020002;
     }
     public static final class id {
-        public static final int menu_settings=0x7f090000;
+        public static final int menu_settings=0x7f0a0000;
+    }
+    public static final class integer {
+        /**  # of seconds between sending data 
+         */
+        public static final int ga_dispatchPeriod=0x7f060000;
     }
     public static final class layout {
         public static final int activity_demo=0x7f030000;
     }
     public static final class menu {
-        public static final int activity_demo=0x7f080000;
+        public static final int activity_demo=0x7f090000;
     }
     public static final class raw {
         public static final int ball=0x7f040000;
@@ -51,6 +57,6 @@ public final class R {
         public static final int title_activity_demo=0x7f050004;
     }
     public static final class style {
-        public static final int AppTheme=0x7f070000;
+        public static final int AppTheme=0x7f080000;
     }
 }

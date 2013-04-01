@@ -82,7 +82,9 @@ public class TouchHandlerGLView extends GLSurfaceView {
 		float distance = FloatMath.sqrt((e.getX(0)-e.getX(1))*(e.getX(0)-e.getX(1)) + 
 							(e.getY(0)-e.getY(1))*(e.getY(0)-e.getY(1)) ); 
 		
-		queueEvent(new CameraMove(world, angle-lastAngle2, 
+		// angle-lastAngle2
+		
+		queueEvent(new CameraMove(world, 0, 
 					(lastDistance2-distance)*CAMERA_MOVE_MULTIPLIER/(getHeight()*getWidth())));
 		
 		lastDistance2 = distance;

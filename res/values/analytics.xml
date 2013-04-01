@@ -3,10 +3,15 @@
 <resources xmlns:tools="https://schemas.android.com/tools" tools:ignore="TypographyDashes">
   <!--Replace placeholder ID with your UA-XXXX-Y tracking ID-->
   <string name="ga_trackingId">UA-39762141-1</string>
+  
+  <!-- # of seconds between sending data -->
+  <integer name="ga_dispatchPeriod">60</integer>
 
   <!--Enable automatic activity tracking-->
   <bool name="ga_autoActivityTracking">true</bool>
 
   <!--Enable automatic exception tracking-->
   <bool name="ga_reportUncaughtExceptions">true</bool>
+  
+  <bool name="ga_debug">true</bool>
 </resources>
