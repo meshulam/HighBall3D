@@ -18,10 +18,10 @@ public class GameState {
 	public List<SimpleVector> apexes = new ArrayList<SimpleVector>();
 	
 	@Element
-	public float maxHeight = 0;
+	public int maxHeightScore = 0;
 	
 	@Element
 	public int score = 0;
-	public float fps = 0;
+	public int fps = 0;
 
 }

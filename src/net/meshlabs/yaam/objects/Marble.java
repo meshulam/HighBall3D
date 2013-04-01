@@ -54,7 +54,6 @@ public class Marble extends Object3D {
 		
 		this.altitudeMarker = new Polyline(altitudeArray, RGBColor.GREEN);
 		this.altitudeMarker.setWidth(3);
-		this.altitudeMarker.setPercentage(1f);
 		this.altitudeMarker.setVisible(true);
 		world.addPolyline(this.altitudeMarker);
 		
@@ -92,6 +91,12 @@ public class Marble extends Object3D {
 		//SimpleVector adjPosition = this.checkForCollisionSpherical(dPosition, radius);
 			
 		if (!adjPosition.equals(dPosition)) { // we have a collision
+			if (world.scoringHandler.inFlight) {
+				float q = 2 - lastCollisionNormal.calcAngleFast(velocity) / (3.14159f/2);
+				Log.i(TAG, "Landed with q="+q+" normal="+lastCollisionNormal+" v="+velocity);
+				world.scoringHandler.land(q);
+			}
+			
 			// Decompose tangential+normal velocity
 			SimpleVector normalV = SimpleVector.create(lastCollisionNormal); // from the CollisionListener
 			normalV.scalarMul(normalV.calcDot(velocity));
@@ -101,8 +106,6 @@ public class Marble extends Object3D {
 			// then invert normal V to bounce off the surface
 			normalV.scalarMul(-1.0f*elasticity);
 			velocity = normalV.calcAdd(tangentV);
-			
-			//Log.i(TAG, "Coll n="+lastCollisionNormal+" vel="+velocity+" adj="+adjPosition+" dp="+dPosition);
 			
 		} else {	// no collision
 			velocity.add(dVelocity);
@@ -117,22 +120,9 @@ public class Marble extends Object3D {
 		
 		castShadow();
 		updateArrow();
-		checkForApex(adjPosition);
 		//pathTracer.timeStep(step);
 		
 		force.set(0,0,0);
-	}
-	
-	private void checkForApex(SimpleVector dPos) {
-		boolean isAscending = (dPos.y < 0);
-
-		if (!isAscending &&	lastWasAscending 
-				&& world.state.marblePosition.y < -2) { 	// We just peaked
-			Log.i(TAG, "Apex with v="+velocity+" dv="+dVelocity);
-			world.apexHandler.addApex(world.state.marblePosition);
-		}
-		
-		lastWasAscending = isAscending;
 	}
 	
 	public void resetState(final SimpleVector position) {
@@ -146,7 +136,6 @@ public class Marble extends Object3D {
 		this.translate(position);
 		
 		this.getTransformedCenter(world.state.marblePosition);
-		world.state.maxHeight = world.state.marblePosition.y;
 		
 	}
 	
@@ -180,7 +169,7 @@ public class Marble extends Object3D {
 		altitudeArray[0].set(world.state.marblePosition);
 		altitudeArray[1].set(world.state.marblePosition);
 		
-		int object = checkForCollision(SimpleVector.create(0, 1f, 0), 100);
+		int object = checkForCollision(world.down, 100);
 		if (object != Object3D.NO_OBJECT) { // Gotta draw a shadow
 			shadow.drawAt(shadowContact, shadowNormal);
 			altitudeArray[1].y = shadowContact.y;

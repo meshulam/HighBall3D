@@ -7,7 +7,6 @@ import java.util.Set;
 
 import net.meshlabs.yaam.levels.ILevel;
 import net.meshlabs.yaam.levels.Level2;
-import net.meshlabs.yaam.objects.ApexHandler;
 import net.meshlabs.yaam.objects.BlobShadow;
 import net.meshlabs.yaam.objects.DynamicHeightMarker;
 import net.meshlabs.yaam.objects.Marble;
@@ -39,9 +38,10 @@ public class GameWorld {
 	private World graphicsWorld;
 	private HudPrinter hudPrinter;
 	private DynamicHeightMarker heightMarker;
-	public ApexHandler apexHandler;
+	public ScoringHandler scoringHandler;
 
 	final public SimpleVector gravity = new SimpleVector(0, 6, 0);
+	final public SimpleVector down = new SimpleVector(0, 1, 0);
 	private Marble marble;
 	public Camera camera;
 	private ILevel level;
@@ -67,7 +67,7 @@ public class GameWorld {
 		initializeWorld();
 		this.hudPrinter = new HudPrinter(state);
 		this.heightMarker = new DynamicHeightMarker(this);
-		this.apexHandler = new ApexHandler(this);
+		this.scoringHandler = new ScoringHandler(this);
 		
 	}
 	
@@ -143,7 +143,7 @@ public class GameWorld {
 			float timeScaleFactor = calcTimeScaleFactor();
 			marble.timeStep(timeStep*timeScaleFactor);
 			
-			apexHandler.timeStep(timeStep);
+			scoringHandler.timeStep(timeStep);
 		}
 		pointCameraSmart();
 	}
@@ -156,7 +156,7 @@ public class GameWorld {
 		graphicsWorld.renderScene(fb);
 		graphicsWorld.draw(fb);
 		
-		apexHandler.drawTo(fb);
+		scoringHandler.draw(fb);
 		//heightMarker.draw(fb);
 		hudPrinter.printHud(fb);
 	}

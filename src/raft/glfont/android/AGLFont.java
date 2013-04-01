@@ -159,6 +159,27 @@ public class AGLFont {
 	}
 	
 	/**
+	 * 
+	 * @param s 
+	 * @param digits The number of digits to count (end of array)
+	 * @return width of valid digits in pixels
+	 */
+	public int getStringWidth(char[] s, int digits) {
+		int width = 0;
+
+		for (int i = 0; i < digits; i++) {
+			char c = s[i];
+			int index = alphabet.indexOf(c);
+			if (index == -1)
+				index = alphabet.indexOf('?');
+			if (index != -1) {
+				width += charWidths[index];
+			}
+		}
+		return width;
+	}
+	
+	/**
 	 * blits given string to frame buffer. works very similar to
 	 * awt.Graphics#drawString(..) that is: x coordinate is left most point in
 	 * string, y is baseline
