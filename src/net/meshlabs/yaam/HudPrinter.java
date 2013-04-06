@@ -19,7 +19,7 @@ public class HudPrinter {
 	private String maxHeightString = "Highest: ";
 	private int scoreOffset = 0;
 	private int maxHeightOffset = 0;
-	private String fpsString = "FPS:"; 
+	//private String fpsString = "FPS:"; 
 	
 	public HudPrinter(GameState state) {
 		this.state = state;
@@ -42,8 +42,6 @@ public class HudPrinter {
 	}
 	
 	public void printHud(FrameBuffer fb) {
-		int height = fb.getHeight();
-		int width = fb.getWidth();
 		//font.blitString(fb, fpsString, 10, height-10, 255, RGBColor.WHITE);
 		//intBlitter.blit(fb, (int)state.fps, 70, height-10, IntBlitter.ALIGN_LEFT, 255, RGBColor.WHITE);
 

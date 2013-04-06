@@ -39,14 +39,11 @@ public final class R {
         public static final int activity_demo=0x7f090000;
     }
     public static final class raw {
-        public static final int ball=0x7f040000;
-        public static final int ball2=0x7f040001;
+        public static final int ball2=0x7f040000;
+        public static final int ball3=0x7f040001;
         public static final int floor=0x7f040002;
-        public static final int shadow1=0x7f040003;
-        public static final int shadow2=0x7f040004;
-        public static final int shadow_noalpha=0x7f040005;
-        public static final int trace=0x7f040006;
-        public static final int wood_texture=0x7f040007;
+        public static final int shadow_noalpha=0x7f040003;
+        public static final int wood_texture=0x7f040004;
     }
     public static final class string {
         public static final int app_name=0x7f050002;

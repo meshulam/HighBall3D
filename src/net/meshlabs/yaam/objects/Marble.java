@@ -52,7 +52,7 @@ public class Marble extends Object3D {
 		this.ellipsoid = new SimpleVector(radius, radius, radius);
 		this.fArrow = ForceArrow.create(world, radius);
 		
-		this.altitudeMarker = new Polyline(altitudeArray, RGBColor.GREEN);
+		this.altitudeMarker = new Polyline(altitudeArray, new RGBColor(200, 42, 58));
 		this.altitudeMarker.setWidth(3);
 		this.altitudeMarker.setVisible(true);
 		world.addPolyline(this.altitudeMarker);

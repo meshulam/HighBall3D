@@ -8,7 +8,6 @@ import java.util.Set;
 import net.meshlabs.yaam.levels.ILevel;
 import net.meshlabs.yaam.levels.Level2;
 import net.meshlabs.yaam.objects.BlobShadow;
-import net.meshlabs.yaam.objects.DynamicHeightMarker;
 import net.meshlabs.yaam.objects.Marble;
 import android.app.Activity;
 import android.os.SystemClock;
@@ -39,7 +38,6 @@ public class GameWorld {
 	protected RendererImpl renderer;
 	private World graphicsWorld;
 	private HudPrinter hudPrinter;
-	private DynamicHeightMarker heightMarker;
 	public ScoringHandler scoringHandler;
 
 	final public SimpleVector gravity = new SimpleVector(0, 6, 0);
@@ -54,7 +52,7 @@ public class GameWorld {
 
 	private SimpleVector cameraPos = new SimpleVector(); // to reduce allocations
 
-	private float cameraDistance = 0.5f;	// a value in [0,1]
+	private float cameraDistance = 0.4f;	// a value in [0,1]
 	private float cameraAngle = 0; 	// Angle around the y axis, 0= looking toward -x
 	
 	private long last2FingerTimestamp = 0;
@@ -67,7 +65,6 @@ public class GameWorld {
 		
 		this.graphicsWorld = new World();
 		this.hudPrinter = new HudPrinter(state);
-		this.heightMarker = new DynamicHeightMarker(this);
 		this.scoringHandler = new ScoringHandler(this);
 		
 		initializeWorld();
@@ -88,9 +85,7 @@ public class GameWorld {
 		//Log.i("MoveCamera", "Distance "+sumCamDist+"  after trying to add "+dDistance);
 		if (sumCamDist > 0 &&  sumCamDist < 1) {
 			cameraDistance = sumCamDist;
-		} else {
-			
-		}
+		} 
 	}
 	
 	private final static float CAMERA_MIN_DISTANCE=4f;
@@ -160,7 +155,6 @@ public class GameWorld {
 		graphicsWorld.draw(fb);
 		
 		scoringHandler.draw(fb);
-		//heightMarker.draw(fb);
 		hudPrinter.printHud(fb);
 	}
 	
@@ -180,10 +174,10 @@ public class GameWorld {
 	 */
 	private void initializeWorld() {
 		setJPCTConfig();
-		graphicsWorld.setAmbientLight(180, 180, 180); 	// Default 100,100,100
+		graphicsWorld.setAmbientLight(120, 120, 120); 	// Default 100,100,100
 		
 		Light sun = new Light(graphicsWorld);
-		sun.setIntensity(140, 140, 140);
+		sun.setIntensity(180, 180, 180);
 		SimpleVector sv = new SimpleVector(0f, -200f, 0f);
 		sun.setPosition(sv);
 		
@@ -215,7 +209,7 @@ public class GameWorld {
 	}
 	
 	public void reloadTextures() {
-		reloadTextureResource(R.raw.ball2, false, Marble.TEXTURE);
+		reloadTextureResource(R.raw.ball3, false, Marble.TEXTURE);
 		reloadTextureResource(R.raw.wood_texture, false, Level2.MAP_TEXTURE);
 		reloadTextureResource(R.raw.shadow_noalpha, false, BlobShadow.TEXTURE);
 	}

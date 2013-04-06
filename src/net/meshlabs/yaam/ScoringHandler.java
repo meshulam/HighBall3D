@@ -4,12 +4,9 @@ import net.meshlabs.yaam.utils.IntBlitter;
 import raft.glfont.android.AGLFont;
 import android.graphics.Paint;
 import android.graphics.Typeface;
-import android.util.Log;
 
 import com.threed.jpct.FrameBuffer;
 import com.threed.jpct.Interact2D;
-import com.threed.jpct.Object3D;
-import com.threed.jpct.Primitives;
 import com.threed.jpct.RGBColor;
 import com.threed.jpct.SimpleVector;
 

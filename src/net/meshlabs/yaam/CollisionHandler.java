@@ -6,7 +6,6 @@ import android.util.Log;
 import com.threed.jpct.CollisionEvent;
 import com.threed.jpct.CollisionListener;
 import com.threed.jpct.PolygonManager;
-import com.threed.jpct.SimpleVector;
 
 public class CollisionHandler implements CollisionListener {
 	private final Marble source;
