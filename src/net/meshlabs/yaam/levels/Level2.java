@@ -7,8 +7,8 @@ import com.threed.jpct.OcTree;
 import com.threed.jpct.SimpleVector;
 
 public class Level2 implements ILevel {
-	public final static String MAP_TEXTURE = "floor.png";
-	private final static String MODEL_FILE = "bowl.3ds";
+	public final static String MAP_TEXTURE = "wood_texture.jpg"; //"floor.png";
+	private final static String MODEL_FILE = "bowl-mapped.3ds";
 	private final static SimpleVector STARTING_BALL_POSITION = new SimpleVector(0, 0, 0);
 	private final static float STARTING_CAMERA_ANGLE = 0; // Radians around the y axis, 0=looking toward -x
 	

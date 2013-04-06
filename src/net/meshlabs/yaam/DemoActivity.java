@@ -7,6 +7,8 @@ import android.util.Log;
 
 import com.google.analytics.tracking.android.EasyTracker;
 import com.google.analytics.tracking.android.GAServiceManager;
+import com.google.analytics.tracking.android.GoogleAnalytics;
+import com.google.analytics.tracking.android.Tracker;
 
 public class DemoActivity extends Activity {
 	public final static String TAG = "Activity";
@@ -56,8 +58,11 @@ public class DemoActivity extends Activity {
 	protected void onStop() {
 		Log.i(TAG, "onStop");
 		super.onStop();
+		Tracker tracker = GoogleAnalytics.getInstance(this).getDefaultTracker();
+		tracker.sendEvent("Gameplay", "Level1", "Score", (long) gameWorld.state.score);
+		tracker.sendEvent("Gameplay", "Level1", "MaxHeight", (long) gameWorld.state.maxHeightScore);
+		
 		EasyTracker.getInstance().activityStop(this); // Google Analytics
-		GAServiceManager.getInstance().dispatch();	// Clear out the queue
 	}
 	
 	@Override

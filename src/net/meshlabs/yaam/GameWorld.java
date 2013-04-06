@@ -15,6 +15,8 @@ import android.os.SystemClock;
 import android.util.FloatMath;
 import android.util.Log;
 
+import com.google.analytics.tracking.android.GoogleAnalytics;
+import com.google.analytics.tracking.android.Tracker;
 import com.threed.jpct.Camera;
 import com.threed.jpct.CollisionListener;
 import com.threed.jpct.Config;
@@ -52,7 +54,7 @@ public class GameWorld {
 
 	private SimpleVector cameraPos = new SimpleVector(); // to reduce allocations
 
-	private float cameraDistance = 0.75f;	// a value in [0,1]
+	private float cameraDistance = 0.5f;	// a value in [0,1]
 	private float cameraAngle = 0; 	// Angle around the y axis, 0= looking toward -x
 	
 	private long last2FingerTimestamp = 0;
@@ -64,18 +66,16 @@ public class GameWorld {
 		this.state = new GameState();
 		
 		this.graphicsWorld = new World();
-		initializeWorld();
 		this.hudPrinter = new HudPrinter(state);
 		this.heightMarker = new DynamicHeightMarker(this);
 		this.scoringHandler = new ScoringHandler(this);
 		
+		initializeWorld();
 	}
 	
 	// angle and magnitude of force vector on the screen. turns into world coords for the marble. 
 	public void applyForce(float screenPathAngle, float screenPathMagnitude) {
-		
 		marble.setForce(cameraAngle + 3.141592f/2 -screenPathAngle, screenPathMagnitude);
-		//marble.setForce(-x, -y, 0); // just for testing up/down collisions
 	}
 	
 	// in normalized screen coords. 
@@ -93,8 +93,8 @@ public class GameWorld {
 		}
 	}
 	
-	private final static float CAMERA_MIN_DISTANCE=2f;
-	private final static float CAMERA_MAX_DISTANCE=10f;
+	private final static float CAMERA_MIN_DISTANCE=4f;
+	private final static float CAMERA_MAX_DISTANCE=15f;
 	private final static float CAMERA_MAX_ANGLE=0.8f; // Fraction of 100% vertical
 
 	private void pointCameraSmart() {
@@ -135,6 +135,9 @@ public class GameWorld {
 		if (level.isOutsideBoundaries(marble.getTransformedCenter())) {		// Death sequence
 			boolean finished = marble.deathSequence(timeStep);
 			if (finished) { 
+				Tracker tracker = GoogleAnalytics.getInstance(activity).getDefaultTracker();
+				tracker.sendEvent("Gameplay", "Level1", "Death", (long) 1);
+				
 				marble.resetState(level.getStartingBallPosition());
 				cameraAngle = level.getStartingCameraAngle();
 				Log.i(TAG, "Finished dying!");
@@ -197,6 +200,11 @@ public class GameWorld {
 		
 		cameraAngle = level.getStartingCameraAngle();
 		camera = graphicsWorld.getCamera();
+		
+		long time = SystemClock.uptimeMillis();
+		scoringHandler.warmup();
+		time = SystemClock.uptimeMillis() - time;
+		Log.i(TAG, "ScoringHandler warmup took "+time+" ms");
 		MemoryHelper.compact();
 	}
 	
@@ -208,7 +216,7 @@ public class GameWorld {
 	
 	public void reloadTextures() {
 		reloadTextureResource(R.raw.ball2, false, Marble.TEXTURE);
-		reloadTextureResource(R.raw.floor, false, Level2.MAP_TEXTURE);
+		reloadTextureResource(R.raw.wood_texture, false, Level2.MAP_TEXTURE);
 		reloadTextureResource(R.raw.shadow_noalpha, false, BlobShadow.TEXTURE);
 	}
 	
@@ -279,7 +287,7 @@ public class GameWorld {
 	
 
 	public void printStatus() {
-		Log.i(TAG, "Ball@"+marble.getTransformedCenter()+" Camera pointing"+camera.getDirection());
+		Log.i(TAG, "Ball@"+state.marblePosition+" fps="+state.fps);
 	}
 
 }

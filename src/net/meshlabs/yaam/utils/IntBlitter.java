@@ -62,7 +62,9 @@ public class IntBlitter {
 			x -= (width/2);
 		}
 		
-		font.blitString(fb, chars, x, y, transparency, color);
+		if (fb != null) {
+			font.blitString(fb, chars, x, y, transparency, color);
+		}
 	}
 
 }

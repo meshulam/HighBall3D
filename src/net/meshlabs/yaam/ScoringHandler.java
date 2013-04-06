@@ -67,9 +67,28 @@ public class ScoringHandler {
 		return (int)(-height*4) * 5;
 	}
 	
+	private void reset() {
+		ascending = false;
+		inFlight = false;
+		stringFlasher.reset();
+	}
+	
 	private void handlePeak(int score) {
 		scoreFlasher.drop(score);
 		world.state.score += score;
+	}
+	
+	/**
+	 * Force JIT compilation and stuff like that.
+	 */
+	public void warmup() {
+		for (int i = 1; i<10; i++) {
+			int score = scoreForHeight(i*25);
+			handlePeak(score);
+			world.state.score -= score;
+			realTimeBlitter.blit(null, scoreForHeight(i*25), 50, 50, IntBlitter.ALIGN_CENTER, 210, RGBColor.WHITE);
+			reset();
+		}
 	}
 	
 	
@@ -145,7 +164,7 @@ public class ScoringHandler {
 			this.message = message;
 		}
 		
-		private void reset() {
+		void reset() {
 			active = false;
 			timePassed = 0;
 			transparency = 255;

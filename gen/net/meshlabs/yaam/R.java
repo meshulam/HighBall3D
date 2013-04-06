@@ -46,15 +46,17 @@ public final class R {
         public static final int shadow2=0x7f040004;
         public static final int shadow_noalpha=0x7f040005;
         public static final int trace=0x7f040006;
+        public static final int wood_texture=0x7f040007;
     }
     public static final class string {
-        public static final int app_name=0x7f050001;
+        public static final int app_name=0x7f050002;
         /** Replace placeholder ID with your UA-XXXX-Y tracking ID
          */
         public static final int ga_trackingId=0x7f050000;
-        public static final int highest=0x7f050003;
-        public static final int score=0x7f050002;
-        public static final int title_activity_demo=0x7f050004;
+        public static final int highest=0x7f050004;
+        public static final int net_meshlabs_yaam_DemoActivity=0x7f050001;
+        public static final int score=0x7f050003;
+        public static final int title_activity_demo=0x7f050005;
     }
     public static final class style {
         public static final int AppTheme=0x7f080000;

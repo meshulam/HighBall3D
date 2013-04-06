@@ -54,7 +54,6 @@ public class RendererImpl implements GLSurfaceView.Renderer {
 		fb.display();
 		
 		if (newTime - lastTime >=1000) {
-			Logger.log(fps + "fps, smoothedStep="+timeSmoother.getAverage());
 			gameWorld.state.fps = fps;
 			fps = 0;
 			lastTime = newTime;

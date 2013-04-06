@@ -2,18 +2,24 @@ package net.meshlabs.yaam;
 
 import android.content.Context;
 import android.opengl.GLSurfaceView;
+import android.util.DisplayMetrics;
 import android.util.FloatMath;
 import android.util.Log;
 import android.view.MotionEvent;
 
 public class TouchHandlerGLView extends GLSurfaceView {
+	public final static String TAG = "TouchHandlerGLView";
 	
 	//private final GLSurfaceView.Renderer renderer;
 	private GameWorld world;
+	private Context context;
+	
+	private float pixelAdjFactor = 0;
 	
 	public TouchHandlerGLView (Context context) {
 		super(context);
 		this.setKeepScreenOn(true);
+		this.context = context;
 	}
 	
 	protected void setWorld(GameWorld w) {
@@ -21,7 +27,19 @@ public class TouchHandlerGLView extends GLSurfaceView {
 		setRenderer(world.renderer);
 	}
 	
+	private void calcScreenSize() {
+		DisplayMetrics dm = context.getResources().getDisplayMetrics();
+		float realWidth = getWidth()/dm.density;
+		float realHeight = getHeight()/dm.density;
+		
+		pixelAdjFactor = 1.5f/dm.density;
+	}
+	
+	@Override
 	public boolean onTouchEvent(MotionEvent e) {
+		if (pixelAdjFactor == 0) {
+			calcScreenSize();
+		}
 		int pointerCount = e.getPointerCount();
 		
 		if (pointerCount == 1) {  // 1 finger, apply a force
@@ -45,6 +63,7 @@ public class TouchHandlerGLView extends GLSurfaceView {
 	/* Stuff for 1 pointer events (applying force) */
 	private float lastX = 0;
 	private float lastY = 0;
+	private final static float MAX_FORCE = 175;
 	
 	private void handle1Pointer(MotionEvent e) {
 		
@@ -52,7 +71,11 @@ public class TouchHandlerGLView extends GLSurfaceView {
 		float dY = e.getY() - lastY;
 		
 		float angle = (float) Math.atan2(dY, dX);
-		float magnitude = FloatMath.sqrt(dX*dX + dY*dY);
+		float magnitude = pixelAdjFactor * FloatMath.sqrt(dX*dX + dY*dY);
+		
+		if (magnitude > MAX_FORCE) {
+			magnitude = MAX_FORCE;
+		}
 		
 		queueEvent(new Force(world, angle, magnitude ));
 		lastX = e.getX();
@@ -85,7 +108,7 @@ public class TouchHandlerGLView extends GLSurfaceView {
 		// angle-lastAngle2
 		
 		queueEvent(new CameraMove(world, 0, 
-					(lastDistance2-distance)*CAMERA_MOVE_MULTIPLIER/(getHeight()*getWidth())));
+					(lastDistance2-distance)*pixelAdjFactor/1000));
 		
 		lastDistance2 = distance;
 		lastAngle2 = angle;
@@ -123,11 +146,11 @@ public class TouchHandlerGLView extends GLSurfaceView {
 		}
 		
 		msg += ", "+e.getPointerCount()+"ptrs";
-		Log.i("TouchHandler", msg);
+		Log.i(TAG, msg);
 		
 		for (int i=0; i< e.getPointerCount(); i++) {
 			String s = " p"+i+" x="+e.getX(i)+" y="+e.getY(i)+" pID="+e.getPointerId(i);
-			Log.i("TouchHandler", s);
+			Log.i(TAG, s);
 		}
 		
 	}

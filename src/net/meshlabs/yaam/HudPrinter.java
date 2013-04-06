@@ -44,8 +44,8 @@ public class HudPrinter {
 	public void printHud(FrameBuffer fb) {
 		int height = fb.getHeight();
 		int width = fb.getWidth();
-		font.blitString(fb, fpsString, 10, height-10, 255, RGBColor.WHITE);
-		intBlitter.blit(fb, (int)state.fps, 70, height-10, IntBlitter.ALIGN_LEFT, 255, RGBColor.WHITE);
+		//font.blitString(fb, fpsString, 10, height-10, 255, RGBColor.WHITE);
+		//intBlitter.blit(fb, (int)state.fps, 70, height-10, IntBlitter.ALIGN_LEFT, 255, RGBColor.WHITE);
 
 		font.blitString(fb, scoreString, 10, 30, 255, RGBColor.WHITE);
 		intBlitter.blit(fb, state.score, 10+scoreOffset, 30, IntBlitter.ALIGN_LEFT, 255, RGBColor.WHITE);
