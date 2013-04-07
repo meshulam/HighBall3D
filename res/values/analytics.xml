@@ -15,5 +15,5 @@
   
   <bool name="ga_debug">false</bool>
   
-  <string name="net.meshlabs.yaam.DemoActivity">Main Activity</string>
+  <string name="meshlabs.hiball.DemoActivity">Main Activity</string>
 </resources>
