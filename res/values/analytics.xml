@@ -2,7 +2,7 @@
 
 <resources xmlns:tools="https://schemas.android.com/tools" tools:ignore="TypographyDashes">
   <!--Replace placeholder ID with your UA-XXXX-Y tracking ID-->
-  <string name="ga_trackingId">UA-39762141-1</string>
+  <string name="ga_trackingId">UA-39762141-2</string>
   
   <!-- # of seconds between sending data -->
   <integer name="ga_dispatchPeriod">60</integer>
@@ -15,5 +15,5 @@
   
   <bool name="ga_debug">false</bool>
   
-  <string name="net.meshlabs.yaam.DemoActivity">Demo Activity</string>
+  <string name="net.meshlabs.yaam.DemoActivity">Main Activity</string>
 </resources>

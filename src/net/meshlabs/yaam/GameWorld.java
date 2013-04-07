@@ -88,7 +88,7 @@ public class GameWorld {
 		} 
 	}
 	
-	private final static float CAMERA_MIN_DISTANCE=4f;
+	private final static float CAMERA_MIN_DISTANCE=2f;
 	private final static float CAMERA_MAX_DISTANCE=15f;
 	private final static float CAMERA_MAX_ANGLE=0.8f; // Fraction of 100% vertical
 
@@ -135,7 +135,6 @@ public class GameWorld {
 				
 				marble.resetState(level.getStartingBallPosition());
 				cameraAngle = level.getStartingCameraAngle();
-				Log.i(TAG, "Finished dying!");
 			}
 		} else {
 			float timeScaleFactor = calcTimeScaleFactor();
@@ -198,7 +197,7 @@ public class GameWorld {
 		long time = SystemClock.uptimeMillis();
 		scoringHandler.warmup();
 		time = SystemClock.uptimeMillis() - time;
-		Log.i(TAG, "ScoringHandler warmup took "+time+" ms");
+		
 		MemoryHelper.compact();
 	}
 	

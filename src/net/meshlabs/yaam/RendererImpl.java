@@ -57,7 +57,7 @@ public class RendererImpl implements GLSurfaceView.Renderer {
 			gameWorld.state.fps = fps;
 			fps = 0;
 			lastTime = newTime;
-			gameWorld.printStatus();
+			//gameWorld.printStatus();
 		}
 		fps++;
 	}
