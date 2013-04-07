@@ -1,4 +1,4 @@
-package net.meshlabs.yaam;
+package meshlabs.hiball;
 
 import android.app.Activity;
 import android.content.res.Configuration;
@@ -8,6 +8,7 @@ import android.util.Log;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.google.analytics.tracking.android.GoogleAnalytics;
 import com.google.analytics.tracking.android.Tracker;
+import meshlabs.hiball.R;
 
 public class DemoActivity extends Activity {
 	public final static String TAG = "Activity";

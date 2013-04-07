@@ -1,6 +1,7 @@
-package net.meshlabs.yaam;
+package meshlabs.hiball;
 
-import net.meshlabs.yaam.utils.IntBlitter;
+import meshlabs.hiball.utils.IntBlitter;
+import meshlabs.hiball.R;
 import raft.glfont.android.AGLFont;
 import android.graphics.Paint;
 import android.graphics.Typeface;

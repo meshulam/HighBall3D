@@ -1,7 +1,7 @@
-package net.meshlabs.yaam.objects;
+package meshlabs.hiball.objects;
 
-import net.meshlabs.yaam.GameWorld;
-import net.meshlabs.yaam.utils.VectorAverager;
+import meshlabs.hiball.GameWorld;
+import meshlabs.hiball.utils.VectorAverager;
 import android.util.FloatMath;
 import android.util.Log;
 

@@ -1,4 +1,4 @@
-package net.meshlabs.yaam.objects;
+package meshlabs.hiball.objects;
 
 import com.threed.jpct.Object3D;
 

@@ -1,6 +1,6 @@
-package net.meshlabs.yaam.levels;
+package meshlabs.hiball.levels;
 
-import net.meshlabs.yaam.GameWorld;
+import meshlabs.hiball.GameWorld;
 
 import com.threed.jpct.Object3D;
 import com.threed.jpct.OcTree;

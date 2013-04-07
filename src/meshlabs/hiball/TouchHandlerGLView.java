@@ -1,4 +1,4 @@
-package net.meshlabs.yaam;
+package meshlabs.hiball;
 
 import android.content.Context;
 import android.opengl.GLSurfaceView;
@@ -6,6 +6,7 @@ import android.util.DisplayMetrics;
 import android.util.FloatMath;
 import android.util.Log;
 import android.view.MotionEvent;
+import meshlabs.hiball.R;
 
 public class TouchHandlerGLView extends GLSurfaceView {
 	public final static String TAG = "TouchHandlerGLView";

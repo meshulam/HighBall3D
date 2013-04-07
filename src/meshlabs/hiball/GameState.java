@@ -1,7 +1,8 @@
-package net.meshlabs.yaam;
+package meshlabs.hiball;
 
 import java.util.ArrayList;
 import java.util.List;
+import meshlabs.hiball.R;
 
 import com.threed.jpct.SimpleVector;
 

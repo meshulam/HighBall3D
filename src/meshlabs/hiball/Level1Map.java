@@ -1,9 +1,10 @@
-package net.meshlabs.yaam;
+package meshlabs.hiball;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import net.meshlabs.yaam.utils.GraphicsUtils;
+import meshlabs.hiball.utils.GraphicsUtils;
+import meshlabs.hiball.R;
 
 import com.threed.jpct.CollisionListener;
 import com.threed.jpct.Object3D;

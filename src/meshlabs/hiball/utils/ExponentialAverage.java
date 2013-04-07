@@ -1,4 +1,4 @@
-package net.meshlabs.yaam.utils;
+package meshlabs.hiball.utils;
 
 public class ExponentialAverage implements Averager {
 	private final float alpha;

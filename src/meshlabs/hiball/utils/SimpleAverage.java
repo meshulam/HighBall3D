@@ -1,4 +1,4 @@
-package net.meshlabs.yaam.utils;
+package meshlabs.hiball.utils;
 
 public class SimpleAverage implements Averager {
 	private final float windowSize;

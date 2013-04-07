@@ -1,7 +1,7 @@
-package net.meshlabs.yaam.objects;
+package meshlabs.hiball.objects;
 
-import net.meshlabs.yaam.GameWorld;
-import net.meshlabs.yaam.utils.GraphicsUtils;
+import meshlabs.hiball.GameWorld;
+import meshlabs.hiball.utils.GraphicsUtils;
 
 import com.threed.jpct.Object3D;
 import com.threed.jpct.Polyline;

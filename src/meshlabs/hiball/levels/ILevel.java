@@ -1,4 +1,4 @@
-package net.meshlabs.yaam.levels;
+package meshlabs.hiball.levels;
 
 import com.threed.jpct.CollisionListener;
 import com.threed.jpct.SimpleVector;

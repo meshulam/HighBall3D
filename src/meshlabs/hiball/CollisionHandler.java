@@ -1,6 +1,7 @@
-package net.meshlabs.yaam;
+package meshlabs.hiball;
 
-import net.meshlabs.yaam.objects.Marble;
+import meshlabs.hiball.objects.Marble;
+import meshlabs.hiball.R;
 import android.util.Log;
 
 import com.threed.jpct.CollisionEvent;

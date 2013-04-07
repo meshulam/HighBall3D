@@ -1,10 +1,11 @@
-package net.meshlabs.yaam;
+package meshlabs.hiball;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-import net.meshlabs.yaam.utils.Averager;
-import net.meshlabs.yaam.utils.TimeSmoother;
+import meshlabs.hiball.utils.Averager;
+import meshlabs.hiball.utils.TimeSmoother;
+import meshlabs.hiball.R;
 import android.opengl.GLSurfaceView;
 import android.util.Log;
 

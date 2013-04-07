@@ -1,4 +1,4 @@
-package net.meshlabs.yaam.utils;
+package meshlabs.hiball.utils;
 
 import com.threed.jpct.SimpleVector;
 
