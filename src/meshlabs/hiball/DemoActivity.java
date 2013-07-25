@@ -8,8 +8,11 @@ import android.util.Log;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.google.analytics.tracking.android.GoogleAnalytics;
 import com.google.analytics.tracking.android.Tracker;
-import meshlabs.hiball.R;
 
+/**
+ * Main (only) Android activity.
+ *
+ */
 public class DemoActivity extends Activity {
 	public final static String TAG = "Activity";
 	 
@@ -23,8 +26,6 @@ public class DemoActivity extends Activity {
         super.onCreate(savedInstanceState);
         
         mGLView = new TouchHandlerGLView(getApplication());
-        // Uncomment here and change the framebuffer call to use ogl2
-        //mGLView.setEGLContextClientVersion(2);
         
         gameWorld = new GameWorld(this);
         //mGLView.setRenderer(gameWorld.renderer);

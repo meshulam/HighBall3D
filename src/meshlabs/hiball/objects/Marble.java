@@ -32,9 +32,8 @@ public class Marble extends Object3D {
 	
 	private final VectorAverager vecSmoother = new VectorAverager(.4f, true);
 	private SimpleVector smoothedForce = new SimpleVector();
-	private boolean lastWasAscending = false;
 	
-	// For movement
+	// For physics
 	private SimpleVector dPosition = new SimpleVector(); // create once and reuse each tick
 	private SimpleVector dVelocity = new SimpleVector();
 	public SimpleVector lastCollisionNormal = new SimpleVector();
@@ -69,10 +68,9 @@ public class Marble extends Object3D {
 		
 	}
 	
-	private static final float FORCE_MULTIPLE = 1;
 	public void setForce(float yaw, float magnitude) {
-		force.x += FORCE_MULTIPLE*magnitude*FloatMath.cos(yaw);
-		force.z += FORCE_MULTIPLE*magnitude*FloatMath.sin(yaw);
+		force.x += magnitude*FloatMath.cos(yaw);
+		force.z += magnitude*FloatMath.sin(yaw);
 	}
 	
 	double lastAngle= 0;
@@ -88,7 +86,6 @@ public class Marble extends Object3D {
 		dVelocity.scalarMul(step);		// divide by time
 		
 		SimpleVector adjPosition = this.checkForCollisionEllipsoid(dPosition, ellipsoid, 1); // this will set collisionPoint
-		//SimpleVector adjPosition = this.checkForCollisionSpherical(dPosition, radius);
 			
 		if (!adjPosition.equals(dPosition)) { // we have a collision
 			if (world.scoringHandler.inFlight) {
@@ -120,7 +117,6 @@ public class Marble extends Object3D {
 		
 		castShadow();
 		updateArrow();
-		//pathTracer.timeStep(step);
 		
 		force.set(0,0,0);
 	}
@@ -141,6 +137,10 @@ public class Marble extends Object3D {
 	
 	private final static float DEATH_LENGTH = 800;
 	private float deathTime = 0;
+	
+	/**
+	 * "Pancake" effect when the ball falls off the edge into the abyss
+	 */
 	public boolean deathSequence(float timeStep) {
 		if (deathTime > DEATH_LENGTH) { 
 			deathTime = 0;
@@ -165,6 +165,9 @@ public class Marble extends Object3D {
 		fArrow.updateArrow(getTranslation(), smoothedForce); 
 	}
 	
+	/**
+	 * Draw shadow underneath the marble and project a vertical line from the marble to the shadow
+	 */
 	private void castShadow() {
 		altitudeArray[0].set(world.state.marblePosition);
 		altitudeArray[1].set(world.state.marblePosition);

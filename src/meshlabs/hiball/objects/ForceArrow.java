@@ -1,30 +1,26 @@
 package meshlabs.hiball.objects;
 
 import meshlabs.hiball.GameWorld;
-import meshlabs.hiball.utils.GraphicsUtils;
-import android.util.Log;
 
 import com.threed.jpct.Matrix;
-import com.threed.jpct.Mesh;
 import com.threed.jpct.Object3D;
 import com.threed.jpct.Primitives;
 import com.threed.jpct.RGBColor;
 import com.threed.jpct.SimpleVector;
 import com.threed.jpct.Texture;
-import com.threed.jpct.TextureManager;
 
+/**
+ * Green arrow over the ball showing the direction of the force being exerted.
+ *
+ */
 public class ForceArrow {
 	final private static String FORCE_TEXTURE = "forceArrowTexture";
 	final private SimpleVector originalDir = new SimpleVector(0, 1, 0); 
-	//final private SimpleVector offsetFromBall;
 	
-	final private static float SCALE = 0.12f;
+	final private static float SCALE = 0.05f;
 	final private GameWorld world;
 	private Object3D shaft;  
 
-	/*
-	 * Public factory method. 
-	 */
 	public static ForceArrow create(GameWorld world, float rotationRadius) {
 		ForceArrow a = new ForceArrow(world, rotationRadius);
 		

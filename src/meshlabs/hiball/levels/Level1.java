@@ -6,7 +6,7 @@ import com.threed.jpct.Object3D;
 import com.threed.jpct.OcTree;
 import com.threed.jpct.SimpleVector;
 
-public class Level2 implements ILevel {
+public class Level1 implements ILevel {
 	public final static String MAP_TEXTURE = "wood_texture.jpg"; //"floor.png";
 	private final static String MODEL_FILE = "bowl-mapped.3ds";
 	private final static SimpleVector STARTING_BALL_POSITION = new SimpleVector(0, 0, 0);
@@ -19,7 +19,7 @@ public class Level2 implements ILevel {
 	
 	//private Set<Object3D> statics = new HashSet<Object3D>();
 	
-	public Level2(GameWorld world) {
+	public Level1(GameWorld world) {
 		this.world = world;
 		initialize();
 	}

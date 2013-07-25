@@ -4,10 +4,14 @@ import meshlabs.hiball.GameWorld;
 import meshlabs.hiball.utils.GraphicsUtils;
 
 import com.threed.jpct.Object3D;
-import com.threed.jpct.Polyline;
 import com.threed.jpct.Primitives;
 import com.threed.jpct.SimpleVector;
 
+/**
+ * Semi-transparent circle which we draw underneath the ball as a shadow. It's rotated to be
+ * in the same plane as the surface under it, but it's always drawn as a perfect circle.
+ *
+ */
 public class BlobShadow extends Object3D {
 	public static final String TEXTURE = "shadowTexture";
 	private final SimpleVector originalOrientation = new SimpleVector(0, 0, -1);

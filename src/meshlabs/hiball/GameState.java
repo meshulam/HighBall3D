@@ -1,15 +1,13 @@
 package meshlabs.hiball;
 
-import java.util.ArrayList;
-import java.util.List;
-import meshlabs.hiball.R;
-
 import com.threed.jpct.SimpleVector;
 
+/**
+ * Holds non-physics-related game state. Also keeps the marble's coordinates for convenience.
+ *
+ */
 public class GameState {
 	public SimpleVector marblePosition = new SimpleVector();
-	
-	public List<SimpleVector> apexes = new ArrayList<SimpleVector>();
 	
 	public int maxHeightScore = 0;
 	

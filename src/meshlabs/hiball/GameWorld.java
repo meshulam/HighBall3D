@@ -6,7 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import meshlabs.hiball.levels.ILevel;
-import meshlabs.hiball.levels.Level2;
+import meshlabs.hiball.levels.Level1;
 import meshlabs.hiball.objects.BlobShadow;
 import meshlabs.hiball.objects.Marble;
 import meshlabs.hiball.R;
@@ -32,6 +32,12 @@ import com.threed.jpct.TextureManager;
 import com.threed.jpct.World;
 import com.threed.jpct.util.MemoryHelper;
 
+/**
+ * Big monolithic class with game logic for camera movement, rendering, and a 
+ * bunch of other stuff. Per-level specifics should be in the Level object and most 
+ * of the physics lives in Marble. 
+ *
+ */
 public class GameWorld {
 	public final static String TAG = "GameWorld";
 	
@@ -101,7 +107,6 @@ public class GameWorld {
 			heightAngle = CAMERA_MAX_ANGLE;
 		}
 		heightAngle = heightAngle * 3.14159f/2;
-		//float xPos = adjustedCameraDistance*FloatMath.cos(cameraAngle);
 		float xPos = adjustedCameraDistance*FloatMath.cos(heightAngle);
 		
 		float yPos = -adjustedCameraDistance*FloatMath.sin(heightAngle);
@@ -113,7 +118,10 @@ public class GameWorld {
 		camera.lookAt(state.marblePosition);
 	}
 	
-	
+	/**
+	 * Factor by which (physics) time is slowed down. Used for slowing down time when zooming in/out
+	 * with 2 fingers.
+	 */
 	private float calcTimeScaleFactor() {
 		long timeSinceFrozen = SystemClock.uptimeMillis() - last2FingerTimestamp;
 		float timeScaleFactor = 1;
@@ -183,7 +191,7 @@ public class GameWorld {
 		
 		reloadTextures();
 		
-		level = new Level2(this);
+		level = new Level1(this);
 		
 		marble = new Marble(this, 0.5f);
 		marble.resetState(level.getStartingBallPosition());
@@ -210,7 +218,7 @@ public class GameWorld {
 	
 	public void reloadTextures() {
 		reloadTextureResource(R.raw.ball3, false, Marble.TEXTURE);
-		reloadTextureResource(R.raw.wood_texture, false, Level2.MAP_TEXTURE);
+		reloadTextureResource(R.raw.wood_texture, false, Level1.MAP_TEXTURE);
 		reloadTextureResource(R.raw.shadow_noalpha, false, BlobShadow.TEXTURE);
 	}
 	

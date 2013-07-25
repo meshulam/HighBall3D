@@ -5,19 +5,18 @@ import javax.microedition.khronos.opengles.GL10;
 
 import meshlabs.hiball.utils.Averager;
 import meshlabs.hiball.utils.TimeSmoother;
-import meshlabs.hiball.R;
 import android.opengl.GLSurfaceView;
 import android.util.Log;
 
 import com.threed.jpct.FrameBuffer;
-import com.threed.jpct.Logger;
 import com.threed.jpct.RGBColor;
 
+/**
+ * Thin class which determines the (smoothed) time since last game loop
+ * and then steps the game forward and re-renders everything.
+ *
+ */
 public class RendererImpl implements GLSurfaceView.Renderer {
-	//private final static float MOV_AVG_PERIOD = 40;
-	//private final static float SMOOTH_FACTOR=0.1f;
-	// 	private float smoothedDRealTime = 17.5f;
-	//private float movAvgDTime = smoothedDRealTime;
 	
 	public Averager timeSmoother;
 	long lastDrawTime = 0;
@@ -54,13 +53,13 @@ public class RendererImpl implements GLSurfaceView.Renderer {
 		gameWorld.renderAndDraw(fb);
 		fb.display();
 		
-		if (newTime - lastTime >=1000) {
-			gameWorld.state.fps = fps;
-			fps = 0;
-			lastTime = newTime;
-			//gameWorld.printStatus();
-		}
-		fps++;
+		// Uncomment stuff below to count FPS for logging or HUD printing
+//		if (newTime - lastTime >=1000) {
+//			gameWorld.state.fps = fps;
+//			fps = 0;
+//			lastTime = newTime;
+//		}
+//		fps++;
 	}
 
 	@Override
@@ -69,7 +68,6 @@ public class RendererImpl implements GLSurfaceView.Renderer {
 		if (fb != null) {
 			fb.dispose();
 		}
-		//fb = new FrameBuffer(width, height);
 		fb = new FrameBuffer(gl, width, height);
 		gameWorld.resyncRenderer();
 	}

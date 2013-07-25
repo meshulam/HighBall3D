@@ -6,8 +6,12 @@ import android.util.DisplayMetrics;
 import android.util.FloatMath;
 import android.util.Log;
 import android.view.MotionEvent;
-import meshlabs.hiball.R;
 
+/**
+ * Converts screen touches to game events: forces exerted on the marble
+ * and camera movements.
+ *
+ */
 public class TouchHandlerGLView extends GLSurfaceView {
 	public final static String TAG = "TouchHandlerGLView";
 	
@@ -15,6 +19,8 @@ public class TouchHandlerGLView extends GLSurfaceView {
 	private GameWorld world;
 	private Context context;
 	
+	// Approximately corresponds to the size of a pixel. Pixel distances are multiplied by
+	// this so that the interaction feels about the same regardless of screen size or density.
 	private float pixelAdjFactor = 0;
 	
 	public TouchHandlerGLView (Context context) {
@@ -63,6 +69,7 @@ public class TouchHandlerGLView extends GLSurfaceView {
 	private float lastX = 0;
 	private float lastY = 0;
 	private final static float MAX_FORCE = 175;
+	private final static float FORCE_SENSITIVITY = 3.0f;	// Higher value means less touching is needed to exert a certain force
 	
 	private void handle1Pointer(MotionEvent e) {
 		
@@ -70,7 +77,7 @@ public class TouchHandlerGLView extends GLSurfaceView {
 		float dY = e.getY() - lastY;
 		
 		float angle = (float) Math.atan2(dY, dX);
-		float magnitude = pixelAdjFactor * FloatMath.sqrt(dX*dX + dY*dY);
+		float magnitude = pixelAdjFactor * FORCE_SENSITIVITY * FloatMath.sqrt(dX*dX + dY*dY);
 		
 		if (magnitude > MAX_FORCE) {
 			magnitude = MAX_FORCE;
@@ -93,7 +100,7 @@ public class TouchHandlerGLView extends GLSurfaceView {
 	private int p1id;
 	
 	private float lastDistance2 =  0;
-	private float lastAngle2 = 0;
+	private float lastAngle2 = 0; // Not used for now. camera can only move in and out, not rotate
 	
 	private void handle2Pointer(MotionEvent e) {
 		int p0 = e.findPointerIndex(p0id);
@@ -171,6 +178,10 @@ public class TouchHandlerGLView extends GLSurfaceView {
 		}
 	}
 	
+	/**
+	 * Represents a change in camera position in polar coordinates: distance from the marble
+	 * and angle about the up axis.
+	 */
 	class CameraMove implements Runnable {
 		final float dYaw;
 		final float distance;

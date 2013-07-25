@@ -1,7 +1,6 @@
 package meshlabs.hiball;
 
 import meshlabs.hiball.utils.IntBlitter;
-import meshlabs.hiball.R;
 import raft.glfont.android.AGLFont;
 import raft.glfont.android.Rectangle;
 import android.graphics.Paint;

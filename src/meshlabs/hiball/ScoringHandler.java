@@ -77,10 +77,11 @@ public class ScoringHandler {
 	}
 	
 	/**
-	 * Force JIT compilation and stuff like that.
+	 * Force JIT compilation for the int blitter. I think this helps but there's still
+	 * a small pause the first time the live score overlay appears.
 	 */
 	public void warmup() {
-		for (int i = 1; i<10; i++) {
+		for (int i = 1; i<10; i++) {	// TODO: Why am I only doing this 9 times?
 			int score = scoreForHeight(i*25);
 			handlePeak(score);
 			world.state.score -= score;
